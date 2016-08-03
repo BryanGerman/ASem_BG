@@ -5,11 +5,12 @@
 int yylex(void);
 void yyerror(char *);
 char* buscarTipo(char *);
-char* buscarPrueba(char *);
-int buscar(char *);
+char* buscar(char *);
+char *buscarInduccion(int);
 extern char* yytext;
 extern FILE* yyin;
 extern FILE* yyout;
+extern FILE* yyout2;
 extern char* yycopy;
 extern int contador;
 char *palabra,*palabra2;
@@ -75,37 +76,37 @@ prog:
 asignacionglobal:
 		TipoDato ASIGNACION Identificador {
 							palabra = $3;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s AsignacionGlobal,",$3,$1);} 
 							}
 		;
 funcion:
 		TipoDato Identificador ASIGNACION stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE	{
 							palabra = $2;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s Funcion,",$2,$1);} 
 							}
 		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
 							palabra = $2;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s Funcion,",$2,$1);} 
 							}
 
 		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB RETURN Identificador AGRLLAV_CE
 {
 							palabra = $2;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s Funcion,",$2,$1);} 
 							}
 
 		|TipoDato tamaVector Identificador AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
 							palabra = $3;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s Funcion[],",$3,$1);} 
 							}
 		|TipoDato tamaVector Identificador stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
 							palabra = $3;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s Funcion[],",$3,$1);} 
 							} 
 		;
@@ -261,7 +262,7 @@ atribucion:
 asignacionLocal:
 		TipoDato ASIGNACION Identificador PUNTOCOM  {
 							palabra = $3;
-							if(buscar(palabra)==-1)
+							if(buscar(palabra)==NULL)
 								{fprintf(yyout,"%s %s AsignacionLocal,",$3,$1);} 
 							}
 		;
@@ -273,11 +274,13 @@ stackOp:
 		;
 
 OperacionArit:
-		Identificador OP valorNumerico 	{
-							palabra = $1;
-							if(buscarPrueba(palabra)==NULL)
-								{fprintf(stderr,"variable %s no declaradaaaaaaaaaaaa",palabra);} 
-				else {fprintf(stderr,"\n\nEncontre la variable %s y es de tipo %s \n\n",palabra,buscarPrueba(palabra));}
+		Identificador OP ENTERO 	{	palabra = $1;
+							fprintf(stderr,"%sholaaaaaaaaa",buscarInduccion($3));
+							if(strcmp(buscar(palabra),buscarInduccion($3))==0)
+								{fprintf(stderr,"holaaaaaaaaaaaaaa");} 
+							else if(strcmp(buscar(palabra),buscarInduccion($3))==0)
+								{fprintf(stderr,"hola");}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
 								}
 	
 		|valorNumerico OP valorNumerico		
@@ -300,8 +303,8 @@ lista:
 
 
 valorNumerico: 
-		ENTERO_NEG
-		|ENTERO
+		ENTERO_NEG 
+		
 		|Lit_float 
 		;
 valorCaracter:
@@ -320,51 +323,8 @@ output:
 		
 	
 %%
-int buscar(char *palabra)
-{
 
- 	 int  encontrado = 0;
-    	 char cadena[300], nombre[50];
-    	 char *a,*buscar;
-	 int chek = -1;
-	 if (yyout != NULL)
-    	{ 
-		buscar = palabra;
-            	rewind(yyout);
- 	      	encontrado = 0;
- 		while (!feof(yyout))
-		{
-        		contador++;
-        		fgets(cadena,256,yyout);
-                	a = strtok(cadena,",");
-			
-                	while (a != NULL)
-                	{
-				if (!strcmp(buscar, a))
-				{
-					encontrado++;
-					if (encontrado == 1)
-					{
-					chek = 0;
-					 return chek;
-					break;
-					}
-				}
-				a = strtok (NULL, " ");
-			}
-		}   
-            	if (encontrado <= 0){
-			return chek;
-				}
-	}
-  	  else
-   	 {
-		printf("\nHubo un error en la apertura del archivo\n");
-		fclose(yyout);
-	}
-   
-}
-char* buscarPrueba(char *palabra)
+char* buscar(char *palabra)
 {
 
  	 int  encontrado = 0;
@@ -391,27 +351,23 @@ char* buscarPrueba(char *palabra)
 			while(a<=3)
 			{
 				j=0;
-				fprintf(stderr,"\nANTESnombre2: %s %d %d",nombre[a],a,j);
 				char *token2 = strtok(nombre[a]," ");
 				while (token2)
                 		{
 					
 					nombre2[a][j] = token2;
-					fprintf(stderr,"\nDESPUESnombre2: %s a= %d j= %d\n",nombre2[a][j],a,j);
 					if (strcmp(buscar, nombre2[a][j])==0)
 					{
-						fprintf(stderr,"\nOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO %d \n",a);
-						b =a;
-						c = j+1;
-						tipo ="Encontrada";
-
+						encontrado++;
+						if(encontrado ==1){
+							b =a;
+							c = j;
+							tipo ="Encontrada";
+							}
 
 					}
 					token2 = strtok (NULL, " ");
-					
-					fprintf(stderr,"\n------------------\n");
-					fprintf(stderr,"\nlllllllllllllllllllllllllllllllllllllllllll %d  %d\n",b,c);
-					tipo = nombre[b][1];
+					tipo = nombre2[b][1];
 					j++;
 				
 				}
@@ -420,7 +376,11 @@ char* buscarPrueba(char *palabra)
 		
 						
 			
-		}   
+		}
+		if (encontrado <= 0){
+			tipo = NULL;
+				}   
+	
             	
 	}
   	  else
@@ -431,6 +391,77 @@ char* buscarPrueba(char *palabra)
 	return tipo;
    
 }
+
+char* buscarInduccion(int numero)
+{
+
+ 	 int  encontrado = 0;
+    	 char cadena[300],cadena2[300];
+    	 char *nombre[50],*nombre2[3][50],*tipo=NULL;
+	int buscar;
+	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
+	 if (yyout2 != NULL)
+    	{ 
+		buscar = numero;
+		
+            	rewind(yyout2);
+ 	      	encontrado = 0;
+ 		while (feof(yyout2)==0)
+		{
+        		fgets(cadena,256,yyout2);
+			char *token = strtok(cadena,",");
+			while (token)
+                	{
+				nombre[i] = token;
+				token = strtok (NULL, ",");
+				i++;
+			}
+			
+			a=0;
+			while(a<=3)
+			{
+				j=0;
+				char *token2 = strtok(nombre[a]," ");
+				while (token2)
+                		{
+					
+					nombre2[a][j] = token2;
+					if (strcmp(numero, nombre2[a][j])==0)
+					{
+						encontrado++;
+						if(encontrado ==1){
+							b =a;
+							c = j;
+							tipo ="Encontrada";
+							}
+
+					}
+					token2 = strtok (NULL, " ");
+					tipo = nombre2[b][1];
+					j++;
+				
+				}
+				a++;
+			}
+		
+						
+			
+		}
+		if (encontrado <= 0){
+			tipo = NULL;
+				}   
+	
+            	
+	}
+  	  else
+   	 {
+		printf("\nHubo un error en la apertura del archivo\n");
+		fclose(yyout2);
+	}
+	return tipo;
+   
+}
+
 char* buscarTipo(char *palabra)
 {
 
@@ -462,8 +493,10 @@ void yyerror(char *s) {
 int main () {
         yyin = fopen ("Codigo.txt", "r");
         yyout = fopen ("output2.csv","w+");
+	yyout2 = fopen("tablaSimbolos.csv","r");
  yyparse();
-	       
+   
 	fclose(yyin);
       	fclose(yyout);
+	fclose(yyout2); 
 }

@@ -4,6 +4,7 @@ void yyerror(char *);
 #include "AnalizadorS.tab.h"
 char *yycopy = 0 ;
 int contador=0;
+FILE *yyout2;
 %}
 ID [a-z][a-z|A-Z|0-9]*
 DIGITO [0-9]
@@ -33,8 +34,8 @@ int|float|bool|char|string 		yylval.tipo=strdup(yytext);		return TipoDato;
 "}"										return AGRLLAV_CE;
 "["										return AGRCOR_AB;
 "]"										return AGRCOR_CE;
-{DIGITO}+				yylval.entero = atoi(yytext);		return ENTERO;
-"-"{DIGITO}+				yylval.enteroNeg = atoi(yytext);	return ENTERO_NEG;
+{DIGITO}+	{yylval.entero = atoi(yytext);		fprintf(yyout2,"%d int,",yylval.entero); return ENTERO;}
+-{DIGITO}+	yylval.enteroNeg = atoi(yytext);	fprintf(yyout2,"%d int,",yylval.enteroNeg);return ENTERO_NEG;
 {DIGITO}*",""0"+|{DIGITO}*","{DIGITO}+|"-"{DIGITO}*",""0"+|"-"{DIGITO}*","{DIGITO}+ yylval.flotante = atof(yytext); return Lit_float;
 true|false|TRUE|FALSE 								return Lit_bool;
 "'"[a-z|A-Z|0-9]"'"  					 			return Lit_char;
@@ -47,5 +48,6 @@ true|false|TRUE|FALSE 								return Lit_bool;
 .										yyerror("invalid character"); 
 %%
 int yywrap(void) { 
+	yyout = fopen("tablaSimbolos.csv","w");
     return 1; 
 }

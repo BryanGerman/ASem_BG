@@ -549,7 +549,8 @@ void yyerror(char *);
 #include "AnalizadorS.tab.h"
 char *yycopy = 0 ;
 int contador=0;
-#line 553 "lex.yy.c"
+FILE *yyout2;
+#line 554 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -736,10 +737,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 11 "AnalizadorS.l"
+#line 12 "AnalizadorS.l"
 
 
-#line 743 "lex.yy.c"
+#line 744 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -824,182 +825,182 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 13 "AnalizadorS.l"
+#line 14 "AnalizadorS.l"
 yylval.tipo=strdup(yytext);		return TipoDato;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 14 "AnalizadorS.l"
+#line 15 "AnalizadorS.l"
 return IF;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 15 "AnalizadorS.l"
+#line 16 "AnalizadorS.l"
 return THEN;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 16 "AnalizadorS.l"
+#line 17 "AnalizadorS.l"
 return ELSE;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 17 "AnalizadorS.l"
+#line 18 "AnalizadorS.l"
 return WHILE;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 18 "AnalizadorS.l"
+#line 19 "AnalizadorS.l"
 return DO;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 19 "AnalizadorS.l"
+#line 20 "AnalizadorS.l"
 return INPUT;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 20 "AnalizadorS.l"
+#line 21 "AnalizadorS.l"
 return OUTPUT;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 21 "AnalizadorS.l"
+#line 22 "AnalizadorS.l"
 return RETURN;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 22 "AnalizadorS.l"
+#line 23 "AnalizadorS.l"
 yylval.identificador=strdup(yytext);	return Identificador;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 23 "AnalizadorS.l"
+#line 24 "AnalizadorS.l"
 return IGUAL;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 24 "AnalizadorS.l"
+#line 25 "AnalizadorS.l"
 return ASIGNACION;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 25 "AnalizadorS.l"
+#line 26 "AnalizadorS.l"
 return SEPARADOR;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 26 "AnalizadorS.l"
+#line 27 "AnalizadorS.l"
 return OP;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 27 "AnalizadorS.l"
+#line 28 "AnalizadorS.l"
 return OPLog;	
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 28 "AnalizadorS.l"
+#line 29 "AnalizadorS.l"
 return OpControl;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 29 "AnalizadorS.l"
+#line 30 "AnalizadorS.l"
 return OpLogControl;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 30 "AnalizadorS.l"
+#line 31 "AnalizadorS.l"
 return AGRPAR_AB;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 31 "AnalizadorS.l"
+#line 32 "AnalizadorS.l"
 return AGRPAR_CE;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 32 "AnalizadorS.l"
+#line 33 "AnalizadorS.l"
 return AGRLLAV_AB;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 33 "AnalizadorS.l"
+#line 34 "AnalizadorS.l"
 return AGRLLAV_CE;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 34 "AnalizadorS.l"
+#line 35 "AnalizadorS.l"
 return AGRCOR_AB;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 35 "AnalizadorS.l"
+#line 36 "AnalizadorS.l"
 return AGRCOR_CE;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 36 "AnalizadorS.l"
-yylval.entero = atoi(yytext);		return ENTERO;
+#line 37 "AnalizadorS.l"
+{yylval.entero = atoi(yytext);		fprintf(yyout2,"%d int,",yylval.entero); return ENTERO;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 37 "AnalizadorS.l"
-yylval.enteroNeg = atoi(yytext);	return ENTERO_NEG;
+#line 38 "AnalizadorS.l"
+yylval.enteroNeg = atoi(yytext);	fprintf(yyout2,"%d int,",yylval.enteroNeg);return ENTERO_NEG;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 38 "AnalizadorS.l"
+#line 39 "AnalizadorS.l"
 yylval.flotante = atof(yytext); return Lit_float;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 39 "AnalizadorS.l"
+#line 40 "AnalizadorS.l"
 return Lit_bool;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 40 "AnalizadorS.l"
+#line 41 "AnalizadorS.l"
 return Lit_char;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 41 "AnalizadorS.l"
+#line 42 "AnalizadorS.l"
 return Lit_String;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 42 "AnalizadorS.l"
+#line 43 "AnalizadorS.l"
 return PUNTOCOM;
 	YY_BREAK
 case 31:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-#line 43 "AnalizadorS.l"
+#line 44 "AnalizadorS.l"
 
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 44 "AnalizadorS.l"
+#line 45 "AnalizadorS.l"
 
 	YY_BREAK
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 45 "AnalizadorS.l"
+#line 46 "AnalizadorS.l"
 
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 47 "AnalizadorS.l"
+#line 48 "AnalizadorS.l"
 yyerror("invalid character"); 
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 48 "AnalizadorS.l"
+#line 49 "AnalizadorS.l"
 ECHO;
 	YY_BREAK
-#line 1003 "lex.yy.c"
+#line 1004 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1997,10 +1998,11 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 48 "AnalizadorS.l"
+#line 49 "AnalizadorS.l"
 
 
 int yywrap(void) { 
+	yyout = fopen("tablaSimbolos.csv","w");
     return 1; 
 }
 

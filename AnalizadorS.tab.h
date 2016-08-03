@@ -87,7 +87,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 58 "AnalizadorS.y" /* yacc.c:1909  */
+#line 59 "AnalizadorS.y" /* yacc.c:1909  */
 
 int entero;
 char* tipo;
