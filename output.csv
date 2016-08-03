@@ -1,0 +1,4 @@
+arreglo,int,Asignacion Global,
+barco,int,Asignacion Global,
+c,int,Asignacion Local,
+main,int,Funcion,
