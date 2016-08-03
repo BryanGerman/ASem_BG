@@ -945,12 +945,12 @@ yylval.entero = atoi(yytext);		return ENTERO;
 case 25:
 YY_RULE_SETUP
 #line 37 "AnalizadorS.l"
-return ENTERO_NEG;
+yylval.enteroNeg = atoi(yytext);	return ENTERO_NEG;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 38 "AnalizadorS.l"
-return Lit_float;
+yylval.flotante = atof(yytext); return Lit_float;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP

@@ -1,9 +1,8 @@
 int: arreglo
-int: arreglo
 int: barco
 int main:(){
 float:armonia;
-armonia=armonia+2
+armonia=barco+2
 int: casa;
 return a}
 int main:(){

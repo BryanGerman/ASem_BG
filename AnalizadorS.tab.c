@@ -70,6 +70,7 @@
 int yylex(void);
 void yyerror(char *);
 char* buscarTipo(char *);
+char* buscarPrueba(char *);
 int buscar(char *);
 extern char* yytext;
 extern FILE* yyin;
@@ -78,7 +79,7 @@ extern char* yycopy;
 extern int contador;
 char *palabra,*palabra2;
 
-#line 82 "AnalizadorS.tab.c" /* yacc.c:339  */
+#line 83 "AnalizadorS.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -155,13 +156,15 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 57 "AnalizadorS.y" /* yacc.c:355  */
+#line 58 "AnalizadorS.y" /* yacc.c:355  */
 
 int entero;
 char* tipo;
 char* identificador;
+int enteroNeg;
+float flotante;
 
-#line 165 "AnalizadorS.tab.c" /* yacc.c:355  */
+#line 168 "AnalizadorS.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -176,7 +179,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 180 "AnalizadorS.tab.c" /* yacc.c:358  */
+#line 183 "AnalizadorS.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -477,17 +480,17 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    67,    67,    68,    69,    73,    80,    81,    87,    94,
-      95,    98,   101,   102,   103,   104,   105,   106,   107,   108,
-     109,   110,   111,   112,   115,   116,   121,   122,   123,   124,
-     125,   129,   130,   131,   132,   133,   134,   135,   136,   140,
-     141,   142,   143,   144,   148,   149,   155,   158,   161,   164,
-     165,   170,   173,   176,   179,   180,   185,   188,   191,   194,
-     195,   200,   203,   206,   211,   212,   213,   214,   215,   216,
-     217,   218,   222,   225,   228,   231,   236,   239,   242,   247,
-     255,   256,   257,   261,   268,   269,   270,   271,   274,   275,
-     276,   277,   278,   282,   283,   288,   289,   290,   293,   294,
-     295,   299,   302
+       0,    70,    70,    71,    72,    76,    83,    88,    94,   101,
+     106,   113,   116,   117,   118,   119,   120,   121,   122,   123,
+     124,   125,   126,   127,   130,   131,   136,   137,   138,   139,
+     140,   144,   145,   146,   147,   148,   149,   150,   151,   155,
+     156,   157,   158,   159,   163,   164,   170,   173,   176,   179,
+     180,   185,   188,   191,   194,   195,   200,   203,   206,   209,
+     210,   215,   218,   221,   226,   227,   228,   229,   230,   231,
+     232,   233,   237,   240,   243,   246,   251,   254,   257,   262,
+     270,   271,   272,   276,   283,   284,   285,   286,   289,   290,
+     291,   292,   293,   297,   298,   303,   304,   305,   308,   309,
+     310,   314,   317
 };
 #endif
 
@@ -1426,252 +1429,282 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 73 "AnalizadorS.y" /* yacc.c:1646  */
+#line 76 "AnalizadorS.y" /* yacc.c:1646  */
     {
 							palabra = (yyvsp[0].identificador);
 							if(buscar(palabra)==-1)
-								{fprintf(yyout,"%s,%s,Asignacion Global\n",(yyvsp[0].identificador),(yyvsp[-2].tipo));} 
+								{fprintf(yyout,"%s %s AsignacionGlobal,",(yyvsp[0].identificador),(yyvsp[-2].tipo));} 
 							}
-#line 1436 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1439 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
-  case 7:
-#line 81 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-							palabra = (yyvsp[-8].identificador);
-							if(buscar(palabra)==-1)
-								{fprintf(yyout,"%s,%s,Funcion\n",(yyvsp[-8].identificador),(yyvsp[-9].tipo));} 
-							}
-#line 1446 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 8:
-#line 88 "AnalizadorS.y" /* yacc.c:1646  */
+  case 6:
+#line 83 "AnalizadorS.y" /* yacc.c:1646  */
     {
 							palabra = (yyvsp[-7].identificador);
 							if(buscar(palabra)==-1)
-								{fprintf(yyout,"%s,%s,Funcion\n",(yyvsp[-7].identificador),(yyvsp[-8].tipo));} 
+								{fprintf(yyout,"%s %s Funcion,",(yyvsp[-7].identificador),(yyvsp[-8].tipo));} 
 							}
-#line 1456 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1449 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 7:
+#line 88 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							palabra = (yyvsp[-8].identificador);
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s %s Funcion,",(yyvsp[-8].identificador),(yyvsp[-9].tipo));} 
+							}
+#line 1459 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 8:
+#line 95 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							palabra = (yyvsp[-7].identificador);
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s %s Funcion,",(yyvsp[-7].identificador),(yyvsp[-8].tipo));} 
+							}
+#line 1469 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 101 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							palabra = (yyvsp[-7].identificador);
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s %s Funcion[],",(yyvsp[-7].identificador),(yyvsp[-9].tipo));} 
+							}
+#line 1479 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 106 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							palabra = (yyvsp[-6].identificador);
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s %s Funcion[],",(yyvsp[-6].identificador),(yyvsp[-8].tipo));} 
+							}
+#line 1489 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 149 "AnalizadorS.y" /* yacc.c:1646  */
+#line 164 "AnalizadorS.y" /* yacc.c:1646  */
     { 	palabra = (yyvsp[-2].identificador);
 								palabra = (yyvsp[0].identificador);
 								buscar(palabra2);
 								buscar(palabra);
 								}
-#line 1466 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1499 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 155 "AnalizadorS.y" /* yacc.c:1646  */
+#line 170 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 								palabra = (yyvsp[-2].identificador);
 								buscar(palabra);}
-#line 1474 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1507 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 158 "AnalizadorS.y" /* yacc.c:1646  */
+#line 173 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 								palabra = (yyvsp[-2].identificador);
 								buscar(palabra);}
-#line 1482 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1515 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 161 "AnalizadorS.y" /* yacc.c:1646  */
+#line 176 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 								palabra = (yyvsp[-2].identificador);
 								buscar(palabra);}
-#line 1490 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1523 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 165 "AnalizadorS.y" /* yacc.c:1646  */
+#line 180 "AnalizadorS.y" /* yacc.c:1646  */
     {
 											palabra = (yyvsp[-4].identificador);
 											palabra = (yyvsp[-2].identificador);
 											buscar(palabra);
 											buscar(palabra2);}
-#line 1500 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1533 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 170 "AnalizadorS.y" /* yacc.c:1646  */
+#line 185 "AnalizadorS.y" /* yacc.c:1646  */
     {
 											palabra = (yyvsp[-4].identificador);
 											buscar(palabra);}
-#line 1508 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1541 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 173 "AnalizadorS.y" /* yacc.c:1646  */
+#line 188 "AnalizadorS.y" /* yacc.c:1646  */
     {
 											palabra = (yyvsp[-4].identificador);
 											buscar(palabra);}
-#line 1516 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1549 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 176 "AnalizadorS.y" /* yacc.c:1646  */
+#line 191 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 											palabra = (yyvsp[-4].identificador);
 											buscar(palabra);}
-#line 1524 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1557 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 180 "AnalizadorS.y" /* yacc.c:1646  */
+#line 195 "AnalizadorS.y" /* yacc.c:1646  */
     {
 											palabra = (yyvsp[-3].identificador);
 											palabra = (yyvsp[-1].identificador);
 											buscar(palabra);
 											buscar(palabra2);}
-#line 1534 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1567 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 185 "AnalizadorS.y" /* yacc.c:1646  */
+#line 200 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 										palabra = (yyvsp[-3].identificador);
 										buscar(palabra);}
-#line 1542 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1575 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 188 "AnalizadorS.y" /* yacc.c:1646  */
+#line 203 "AnalizadorS.y" /* yacc.c:1646  */
     {
 										palabra = (yyvsp[-3].identificador);
 										buscar(palabra);}
-#line 1550 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1583 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 191 "AnalizadorS.y" /* yacc.c:1646  */
+#line 206 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 										palabra = (yyvsp[-3].identificador);
 										buscar(palabra);}
-#line 1558 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1591 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 195 "AnalizadorS.y" /* yacc.c:1646  */
+#line 210 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 														palabra = (yyvsp[-5].identificador);
 														palabra = (yyvsp[-3].identificador);
 														buscar(palabra);
 														buscar(palabra2);}
-#line 1568 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1601 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 200 "AnalizadorS.y" /* yacc.c:1646  */
+#line 215 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 														palabra = (yyvsp[-5].identificador);
 														buscar(palabra);}
-#line 1576 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1609 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 203 "AnalizadorS.y" /* yacc.c:1646  */
+#line 218 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 														palabra = (yyvsp[-5].identificador);
 														buscar(palabra);}
-#line 1584 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1617 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 206 "AnalizadorS.y" /* yacc.c:1646  */
+#line 221 "AnalizadorS.y" /* yacc.c:1646  */
     { char *palabra;
 														palabra = (yyvsp[-5].identificador);
 														buscar(palabra);}
-#line 1592 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1625 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 222 "AnalizadorS.y" /* yacc.c:1646  */
+#line 237 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 							palabra = (yyvsp[-2].identificador);
 							buscar(palabra);}
-#line 1600 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1633 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 225 "AnalizadorS.y" /* yacc.c:1646  */
+#line 240 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 							palabra = (yyvsp[-2].identificador);
 							buscar(palabra);}
-#line 1608 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1641 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 228 "AnalizadorS.y" /* yacc.c:1646  */
+#line 243 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 							palabra = (yyvsp[-2].identificador);
 							buscar(palabra);}
-#line 1616 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1649 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 231 "AnalizadorS.y" /* yacc.c:1646  */
+#line 246 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 								palabra = (yyvsp[-2].identificador);
 								palabra2 = (yyvsp[0].identificador);
 								buscar(palabra);
 								buscar(palabra2);}
-#line 1626 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1659 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 236 "AnalizadorS.y" /* yacc.c:1646  */
+#line 251 "AnalizadorS.y" /* yacc.c:1646  */
     {
 											palabra = (yyvsp[-5].identificador);
 											buscar(palabra);}
-#line 1634 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1667 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 239 "AnalizadorS.y" /* yacc.c:1646  */
+#line 254 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 											palabra = (yyvsp[-5].identificador);
 											buscar(palabra);}
-#line 1642 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1675 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 242 "AnalizadorS.y" /* yacc.c:1646  */
+#line 257 "AnalizadorS.y" /* yacc.c:1646  */
     { 
 											palabra = (yyvsp[-8].identificador);
 											buscar(palabra);}
-#line 1650 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1683 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 247 "AnalizadorS.y" /* yacc.c:1646  */
+#line 262 "AnalizadorS.y" /* yacc.c:1646  */
     {
 							palabra = (yyvsp[-1].identificador);
 							if(buscar(palabra)==-1)
-								{fprintf(yyout,"%s,%s,Asignacion Local\n",(yyvsp[-1].identificador),(yyvsp[-3].tipo));} 
+								{fprintf(yyout,"%s %s AsignacionLocal,",(yyvsp[-1].identificador),(yyvsp[-3].tipo));} 
 							}
-#line 1660 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1693 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 261 "AnalizadorS.y" /* yacc.c:1646  */
+#line 276 "AnalizadorS.y" /* yacc.c:1646  */
     {
 							palabra = (yyvsp[-2].identificador);
-							if(buscar(palabra)==-1)
-								{fprintf(stderr,"variable %s no declarada",palabra);} 
-							else {printf("%s",buscarTipo(palabra));}
+							if(buscarPrueba(palabra)==NULL)
+								{fprintf(stderr,"variable %s no declaradaaaaaaaaaaaa",palabra);} 
+				else {fprintf(stderr,"\n\nEncontre la variable %s y es de tipo %s \n\n",palabra,buscarPrueba(palabra));}
 								}
-#line 1671 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1704 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1675 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1708 "AnalizadorS.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1899,7 +1932,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 307 "AnalizadorS.y" /* yacc.c:1906  */
+#line 322 "AnalizadorS.y" /* yacc.c:1906  */
 
 int buscar(char *palabra)
 {
@@ -1945,52 +1978,96 @@ int buscar(char *palabra)
 	}
    
 }
-
-
-char* buscarTipo(char *palabra)
+char* buscarPrueba(char *palabra)
 {
 
  	 int  encontrado = 0;
-    	 char cadena[300], nombre[50];
-    	 char *a,*buscar,*tipo;
-	 char* chek = NULL;
+    	 char cadena[300],cadena2[300];
+    	 char *buscar,*nombre[50],*nombre2[3][50],*tipo=NULL;
+	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
 	 if (yyout != NULL)
     	{ 
 		buscar = palabra;
             	rewind(yyout);
  	      	encontrado = 0;
- 		while (!feof(yyout))
+ 		while (feof(yyout)==0)
 		{
-        		contador++;
         		fgets(cadena,256,yyout);
-                	a = strtok(cadena,",");
-			fprintf(stderr,"%s",cadena);
-                	while (a != NULL)
+			char *token = strtok(cadena,",");
+			while (token)
                 	{
-				if (!strcmp(buscar, a))
-				{
-					encontrado++;
-					if (encontrado == 1)
-					{
-					
-					 
-					fprintf(stderr,"\n");
-					}
-				}
-				
-				
-				a = strtok (NULL, ",");
+				nombre[i] = token;
+				token = strtok (NULL, ",");
+				i++;
 			}
-		}   
-            	if (encontrado <= 0){
-			return chek;
+			
+			a=0;
+			while(a<=3)
+			{
+				j=0;
+				fprintf(stderr,"\nANTESnombre2: %s %d %d",nombre[a],a,j);
+				char *token2 = strtok(nombre[a]," ");
+				while (token2)
+                		{
+					
+					nombre2[a][j] = token2;
+					fprintf(stderr,"\nDESPUESnombre2: %s a= %d j= %d\n",nombre2[a][j],a,j);
+					if (strcmp(buscar, nombre2[a][j])==0)
+					{
+						fprintf(stderr,"\nOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO %d \n",a);
+						b =a;
+						c = j+1;
+						tipo ="Encontrada";
+
+
+					}
+					token2 = strtok (NULL, " ");
+					
+					fprintf(stderr,"\n------------------\n");
+					fprintf(stderr,"\nlllllllllllllllllllllllllllllllllllllllllll %d  %d\n",b,c);
+					tipo = nombre[b][1];
+					j++;
+					
+					
+						
+							//tipo = nombre2[2][j];
 				}
+				a++;
+			}
+		
+						
+			
+		}   
+            	
 	}
   	  else
    	 {
 		printf("\nHubo un error en la apertura del archivo\n");
 		fclose(yyout);
 	}
+	return tipo;
+   
+}
+char* buscarTipo(char *palabra)
+{
+
+ 	char s[256];
+strcpy(s, "arreglo,int,VariableLocal");
+char* token = strtok(s, ",");
+char *arreglo[3];
+int i=0,j;
+while (token) {
+   
+	arreglo[i] = token;
+	printf("arreglo: %s\n", arreglo[i]);
+	token = strtok(NULL, ",");
+	i++;
+}
+for(j=0;j<3;j++)
+{
+fprintf(stderr,"EL: %s\n",arreglo[j]);
+}
+return NULL;
    
 }
 
