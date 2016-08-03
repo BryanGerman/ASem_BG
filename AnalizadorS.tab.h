@@ -55,14 +55,14 @@ extern int yydebug;
     OP = 265,
     OPLog = 266,
     OpLogControl = 267,
-    TipoDato = 268,
+    ASIGNACION = 268,
     Lit_float = 269,
     ENTERO = 270,
     ENTERO_NEG = 271,
     Lit_bool = 272,
     Lit_char = 273,
     Lit_String = 274,
-    ASIGNACION = 275,
+    TipoDato = 275,
     PUNTOCOM = 276,
     SEPARADOR = 277,
     AGRPAR_AB = 278,
@@ -87,7 +87,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 49 "AnalizadorS.y" /* yacc.c:1909  */
+#line 57 "AnalizadorS.y" /* yacc.c:1909  */
 
 int entero;
 char* tipo;

@@ -9,7 +9,7 @@ ID [a-z][a-z|A-Z|0-9]*
 DIGITO [0-9]
 CHAR [a-z|0-9]
 %%
-[\n]						{return *yytext;			}
+
 int|float|bool|char|string 		yylval.tipo=strdup(yytext);		return TipoDato;
 "if"										return IF;
 "then"										return THEN;

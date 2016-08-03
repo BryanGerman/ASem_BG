@@ -1,15 +1,10 @@
 int: arreglo
+int: arreglo
 int: barco
 int main:(){
-int:a;
-a=2 
-if(a==2)
-{
-a=3
-}
-while (arreglo==barco)
-do
-{
-int:c;
-}
+float:armonia;
+armonia=armonia+2
+int: casa;
+return a}
+int main:(){
 return a}

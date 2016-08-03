@@ -368,8 +368,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 36
-#define YY_END_OF_BUFFER 37
+#define YY_NUM_RULES 35
+#define YY_END_OF_BUFFER 36
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -379,19 +379,19 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[115] =
     {   0,
-        0,    0,   37,   35,   34,    1,   35,   35,   15,   16,
-       35,   19,   20,   14,   15,   15,   25,   13,   31,   17,
-       12,   17,   35,   35,   23,   24,   11,   11,   11,   11,
-       11,   11,   11,   11,   11,   11,   11,   11,   21,   16,
-       22,   17,    0,   30,   18,    0,   27,   27,    0,   26,
-        0,   33,    0,   25,    0,    0,   11,   11,   11,    7,
-       11,   11,   11,    3,   11,   11,   11,   11,   11,   11,
-       11,   11,   29,   27,   27,    0,    0,   33,    0,    0,
-       11,   11,   11,   11,   11,    2,   11,   11,   11,   11,
-       11,   11,   11,   32,    0,   28,    5,   11,   11,   11,
+        0,    0,   36,   34,   33,   33,   34,   34,   14,   15,
+       34,   18,   19,   13,   14,   14,   24,   12,   30,   16,
+       11,   16,   34,   34,   22,   23,   10,   10,   10,   10,
+       10,   10,   10,   10,   10,   10,   10,   10,   20,   15,
+       21,   16,    0,   29,   17,    0,   26,   26,    0,   25,
+        0,   32,    0,   24,    0,    0,   10,   10,   10,    6,
+       10,   10,   10,    2,   10,   10,   10,   10,   10,   10,
+       10,   10,   28,   26,   26,    0,    0,   32,    0,    0,
+       10,   10,   10,   10,   10,    1,   10,   10,   10,   10,
+       10,   10,   10,   31,    0,   27,    4,   10,   10,   10,
 
-       11,   11,   11,    4,   11,   11,   11,   11,    9,   11,
-        6,    8,   10,    0
+       10,   10,   10,    3,   10,   10,   10,   10,    8,   10,
+        5,    7,    9,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -738,7 +738,8 @@ YY_DECL
     
 #line 11 "AnalizadorS.l"
 
-#line 742 "lex.yy.c"
+
+#line 743 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -822,189 +823,183 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case 1:
-/* rule 1 can match eol */
-YY_RULE_SETUP
-#line 12 "AnalizadorS.l"
-{return *yytext;			}
-	YY_BREAK
-case 2:
 YY_RULE_SETUP
 #line 13 "AnalizadorS.l"
 yylval.tipo=strdup(yytext);		return TipoDato;
 	YY_BREAK
-case 3:
+case 2:
 YY_RULE_SETUP
 #line 14 "AnalizadorS.l"
 return IF;
 	YY_BREAK
-case 4:
+case 3:
 YY_RULE_SETUP
 #line 15 "AnalizadorS.l"
 return THEN;
 	YY_BREAK
-case 5:
+case 4:
 YY_RULE_SETUP
 #line 16 "AnalizadorS.l"
 return ELSE;
 	YY_BREAK
-case 6:
+case 5:
 YY_RULE_SETUP
 #line 17 "AnalizadorS.l"
 return WHILE;
 	YY_BREAK
-case 7:
+case 6:
 YY_RULE_SETUP
 #line 18 "AnalizadorS.l"
 return DO;
 	YY_BREAK
-case 8:
+case 7:
 YY_RULE_SETUP
 #line 19 "AnalizadorS.l"
 return INPUT;
 	YY_BREAK
-case 9:
+case 8:
 YY_RULE_SETUP
 #line 20 "AnalizadorS.l"
 return OUTPUT;
 	YY_BREAK
-case 10:
+case 9:
 YY_RULE_SETUP
 #line 21 "AnalizadorS.l"
 return RETURN;
 	YY_BREAK
-case 11:
+case 10:
 YY_RULE_SETUP
 #line 22 "AnalizadorS.l"
 yylval.identificador=strdup(yytext);	return Identificador;
 	YY_BREAK
-case 12:
+case 11:
 YY_RULE_SETUP
 #line 23 "AnalizadorS.l"
 return IGUAL;
 	YY_BREAK
-case 13:
+case 12:
 YY_RULE_SETUP
 #line 24 "AnalizadorS.l"
 return ASIGNACION;
 	YY_BREAK
-case 14:
+case 13:
 YY_RULE_SETUP
 #line 25 "AnalizadorS.l"
 return SEPARADOR;
 	YY_BREAK
-case 15:
+case 14:
 YY_RULE_SETUP
 #line 26 "AnalizadorS.l"
 return OP;
 	YY_BREAK
-case 16:
+case 15:
 YY_RULE_SETUP
 #line 27 "AnalizadorS.l"
 return OPLog;	
 	YY_BREAK
-case 17:
+case 16:
 YY_RULE_SETUP
 #line 28 "AnalizadorS.l"
 return OpControl;
 	YY_BREAK
-case 18:
+case 17:
 YY_RULE_SETUP
 #line 29 "AnalizadorS.l"
 return OpLogControl;
 	YY_BREAK
-case 19:
+case 18:
 YY_RULE_SETUP
 #line 30 "AnalizadorS.l"
 return AGRPAR_AB;
 	YY_BREAK
-case 20:
+case 19:
 YY_RULE_SETUP
 #line 31 "AnalizadorS.l"
 return AGRPAR_CE;
 	YY_BREAK
-case 21:
+case 20:
 YY_RULE_SETUP
 #line 32 "AnalizadorS.l"
 return AGRLLAV_AB;
 	YY_BREAK
-case 22:
+case 21:
 YY_RULE_SETUP
 #line 33 "AnalizadorS.l"
 return AGRLLAV_CE;
 	YY_BREAK
-case 23:
+case 22:
 YY_RULE_SETUP
 #line 34 "AnalizadorS.l"
 return AGRCOR_AB;
 	YY_BREAK
-case 24:
+case 23:
 YY_RULE_SETUP
 #line 35 "AnalizadorS.l"
 return AGRCOR_CE;
 	YY_BREAK
-case 25:
+case 24:
 YY_RULE_SETUP
 #line 36 "AnalizadorS.l"
 yylval.entero = atoi(yytext);		return ENTERO;
 	YY_BREAK
-case 26:
+case 25:
 YY_RULE_SETUP
 #line 37 "AnalizadorS.l"
 return ENTERO_NEG;
 	YY_BREAK
-case 27:
+case 26:
 YY_RULE_SETUP
 #line 38 "AnalizadorS.l"
 return Lit_float;
 	YY_BREAK
-case 28:
+case 27:
 YY_RULE_SETUP
 #line 39 "AnalizadorS.l"
 return Lit_bool;
 	YY_BREAK
-case 29:
+case 28:
 YY_RULE_SETUP
 #line 40 "AnalizadorS.l"
 return Lit_char;
 	YY_BREAK
-case 30:
+case 29:
 YY_RULE_SETUP
 #line 41 "AnalizadorS.l"
 return Lit_String;
 	YY_BREAK
-case 31:
+case 30:
 YY_RULE_SETUP
 #line 42 "AnalizadorS.l"
 return PUNTOCOM;
 	YY_BREAK
-case 32:
-/* rule 32 can match eol */
+case 31:
+/* rule 31 can match eol */
 YY_RULE_SETUP
 #line 43 "AnalizadorS.l"
 
 	YY_BREAK
-case 33:
+case 32:
 YY_RULE_SETUP
 #line 44 "AnalizadorS.l"
 
 	YY_BREAK
-case 34:
-/* rule 34 can match eol */
+case 33:
+/* rule 33 can match eol */
 YY_RULE_SETUP
 #line 45 "AnalizadorS.l"
 
 	YY_BREAK
-case 35:
+case 34:
 YY_RULE_SETUP
 #line 47 "AnalizadorS.l"
 yyerror("invalid character"); 
 	YY_BREAK
-case 36:
+case 35:
 YY_RULE_SETUP
 #line 48 "AnalizadorS.l"
 ECHO;
 	YY_BREAK
-#line 1008 "lex.yy.c"
+#line 1003 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

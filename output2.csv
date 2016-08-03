@@ -1,1 +1,3 @@
-arreglo,int,Asignacion Global,
+arreglo,int,Asignacion Global
+barco,int,Asignacion Global
+armonia,float,Asignacion Local

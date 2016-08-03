@@ -4,13 +4,21 @@
 #include <string.h>
 int yylex(void);
 void yyerror(char *);
-void buscar(char *);
+char* buscarTipo(char *);
+int buscar(char *);
 extern char* yytext;
 extern FILE* yyin;
 extern FILE* yyout;
 extern char* yycopy;
 extern int contador;
+char *palabra,*palabra2;
 %}
+
+
+
+
+
+
 %token Lit_int
 %token IGUAL
 %token Palabra_reservada
@@ -21,14 +29,14 @@ extern int contador;
 %token OP
 %token OPLog
 %token OpLogControl
-%token <tipo>TipoDato
+%token ASIGNACION
 %token Lit_float
 %token <entero>ENTERO
 %token ENTERO_NEG
 %token Lit_bool
 %token Lit_char
 %token Lit_String
-%token ASIGNACION
+%token <tipo>TipoDato
 %token PUNTOCOM
 %token SEPARADOR
 %token AGRPAR_AB
@@ -52,8 +60,9 @@ char* tipo;
 char* identificador;
 }
 
-
+%start prog
 %%
+
 prog: 
 		prog asignacionglobal
 		|prog funcion 
@@ -61,13 +70,27 @@ prog:
 		;
 
 asignacionglobal:
-		TipoDato ASIGNACION Identificador {fprintf(yyout,"%s,%s,Asignacion Global,\n",$3,$1);}
+		TipoDato ASIGNACION Identificador {
+							palabra = $3;
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s,%s,Asignacion Global\n",$3,$1);} 
+							}
 		;
 funcion:
 		TipoDato Identificador ASIGNACION stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE	
-		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {fprintf(yyout,"%s,%s,Funcion,\n",$2,$1);}
+		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
+							palabra = $2;
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s,%s,Funcion\n",$2,$1);} 
+							}
+
 		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB RETURN Identificador AGRLLAV_CE
-{fprintf(yyout,"%s,%s,Funcion,\n",$2,$1);}
+{
+							palabra = $2;
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s,%s,Funcion\n",$2,$1);} 
+							}
+
 		|TipoDato tamaVector Identificador AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE 
 		|TipoDato tamaVector Identificador stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE  
 		;
@@ -88,6 +111,11 @@ bloqueComandosFunciones:
 		|input
 		|output
 		;
+stackAsig: 	
+		AGRPAR_AB stackAsig AGRPAR_CE
+		|lista
+		;
+
 
 if: 
 		IF stackOpLogControl				
@@ -118,61 +146,61 @@ while:
 
 stackOpLogControl: 	
 		AGRPAR_AB stackOpLogControl AGRPAR_CE
-		|Identificador OpControl Identificador     { char *palabra, *palabra2;
-								palabra = $1;
+		|Identificador OpControl Identificador     { 	palabra = $1;
 								palabra = $3;
+								buscar(palabra2);
 								buscar(palabra);
-								buscar(palabra2);}
+								}
  
-		|Identificador OpControl valorNumerico  { char *palabra;
+		|Identificador OpControl valorNumerico  { 
 								palabra = $1;
 								buscar(palabra);}
-		|Identificador OpControl valorCaracter { char *palabra;
+		|Identificador OpControl valorCaracter { 
 								palabra = $1;
 								buscar(palabra);}
-		|Identificador OpControl OperacionArit { char *palabra;
+		|Identificador OpControl OperacionArit { 
 								palabra = $1;
 								buscar(palabra);}
 		|AGRPAR_AB stackOpLogControl AGRPAR_CE OpLogControl stackOpLogControl
-		|Identificador OpControl Identificador OpLogControl stackOpLogControl  { char *palabra, *palabra2;
+		|Identificador OpControl Identificador OpLogControl stackOpLogControl  {
 											palabra = $1;
 											palabra = $3;
 											buscar(palabra);
 											buscar(palabra2);}
-		|Identificador OpControl valorNumerico OpLogControl stackOpLogControl { char *palabra;
+		|Identificador OpControl valorNumerico OpLogControl stackOpLogControl {
 											palabra = $1;
 											buscar(palabra);}
-		|Identificador OpControl valorCaracter OpLogControl stackOpLogControl { char *palabra;
+		|Identificador OpControl valorCaracter OpLogControl stackOpLogControl {
 											palabra = $1;
 											buscar(palabra);}
-		|Identificador OpControl OperacionArit OpLogControl stackOpLogControl { char *palabra;
+		|Identificador OpControl OperacionArit OpLogControl stackOpLogControl { 
 											palabra = $1;
 											buscar(palabra);}
 		|AGRPAR_AB stackOpLogControl AGRPAR_CE bloqueComandosWhile
-		|Identificador OpControl Identificador bloqueComandosWhile 	 { char *palabra, *palabra2;
+		|Identificador OpControl Identificador bloqueComandosWhile 	 {
 											palabra = $1;
 											palabra = $3;
 											buscar(palabra);
 											buscar(palabra2);}
-		|Identificador OpControl valorNumerico bloqueComandosWhile { char *palabra;
+		|Identificador OpControl valorNumerico bloqueComandosWhile { 
 										palabra = $1;
 										buscar(palabra);}
-		|Identificador OpControl valorCaracter bloqueComandosWhile { char *palabra;
+		|Identificador OpControl valorCaracter bloqueComandosWhile {
 										palabra = $1;
 										buscar(palabra);}
-		|Identificador OpControl OperacionArit bloqueComandosWhile { char *palabra;
+		|Identificador OpControl OperacionArit bloqueComandosWhile { 
 										palabra = $1;
 										buscar(palabra);}
 		|AGRPAR_AB stackOpLogControl AGRPAR_CE OpLogControl stackOpLogControl bloqueComandosWhile
-		|Identificador OpControl Identificador OpLogControl stackOpLogControl bloqueComandosWhile  { char *palabra, *palabra2;
+		|Identificador OpControl Identificador OpLogControl stackOpLogControl bloqueComandosWhile  { 
 														palabra = $1;
 														palabra = $3;
 														buscar(palabra);
 														buscar(palabra2);}
-		|Identificador OpControl valorNumerico OpLogControl stackOpLogControl bloqueComandosWhile { char *palabra;
+		|Identificador OpControl valorNumerico OpLogControl stackOpLogControl bloqueComandosWhile { 
 														palabra = $1;
 														buscar(palabra);}
-		|Identificador OpControl valorCaracter OpLogControl stackOpLogControl bloqueComandosWhile { char *palabra;
+		|Identificador OpControl valorCaracter OpLogControl stackOpLogControl bloqueComandosWhile { 
 														palabra = $1;
 														buscar(palabra);}
 		|Identificador OpControl OperacionArit OpLogControl stackOpLogControl bloqueComandosWhile { char *palabra;
@@ -191,35 +219,38 @@ bloqueComandosWhile:
 		;
 
 atribucion:
-		Identificador IGUAL stackOp	{ char *palabra;
+		Identificador IGUAL stackOp	{ 
 							palabra = $1;
 							buscar(palabra);}	
-		| Identificador IGUAL valorNumerico	{ char *palabra;
+		| Identificador IGUAL valorNumerico	{ 
 							palabra = $1;
 							buscar(palabra);}
-		| Identificador IGUAL valorCaracter     { char *palabra;
+		| Identificador IGUAL valorCaracter     { 
 							palabra = $1;
 							buscar(palabra);}	
-		| Identificador IGUAL Identificador   	{ char *palabra,*palabra2;
+		| Identificador IGUAL Identificador   	{ 
 								palabra = $1;
 								palabra2 = $3;
 								buscar(palabra);
 								buscar(palabra2);}
-		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL valorNumerico  { char *palabra;
+		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL valorNumerico  {
 											palabra = $1;
 											buscar(palabra);}
-		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL valorCaracter { char *palabra;
+		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL valorCaracter { 
 											palabra = $1;
 											buscar(palabra);}
-		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL Identificador AGRCOR_AB ENTERO AGRCOR_CE { char *palabra;
+		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL Identificador AGRCOR_AB ENTERO AGRCOR_CE { 
 											palabra = $1;
 											buscar(palabra);}
+		;
+asignacionLocal:
+		TipoDato ASIGNACION Identificador PUNTOCOM  {
+							palabra = $3;
+							if(buscar(palabra)==-1)
+								{fprintf(yyout,"%s,%s,Asignacion Local\n",$3,$1);} 
+							}
 		;
 
-stackAsig: 	
-		AGRPAR_AB stackAsig AGRPAR_CE
-		|lista
-		;
 stackOp: 	
 		AGRPAR_AB stackOp AGRPAR_CE
 		|OperacionArit
@@ -227,7 +258,13 @@ stackOp:
 		;
 
 OperacionArit:
-		Identificador OP valorNumerico 		
+		Identificador OP valorNumerico 	{
+							palabra = $1;
+							if(buscar(palabra)==-1)
+								{fprintf(stderr,"variable %s no declarada",palabra);} 
+							else {printf("%s",buscarTipo(palabra));}
+								}
+	
 		|valorNumerico OP valorNumerico		
 		|Identificador OP Identificador		
 		|Identificador OP OperacionArit		
@@ -246,9 +283,7 @@ lista:
 		|lista SEPARADOR lista
 		; 
 
-asignacionLocal:
-		TipoDato ASIGNACION Identificador PUNTOCOM  {fprintf(yyout,"%s,%s,Asignacion Local,\n",$3,$1);}
-		;
+
 valorNumerico: 
 		ENTERO_NEG
 		|ENTERO
@@ -270,23 +305,24 @@ output:
 		
 	
 %%
-void buscar(char *palabra)
+int buscar(char *palabra)
 {
-FILE *archivo;
+
  	 int  encontrado = 0;
-    	 char cadena[256], nombre[25];
+    	 char cadena[300], nombre[50];
     	 char *a,*buscar;
-	archivo = fopen("output.csv","r");
-	 if (archivo != NULL)
+	 int chek = -1;
+	 if (yyout != NULL)
     	{ 
 		buscar = palabra;
-            	rewind(archivo);
+            	rewind(yyout);
  	      	encontrado = 0;
- 		while (!feof(archivo))
+ 		while (!feof(yyout))
 		{
         		contador++;
-        		fgets(cadena,256,archivo);
-                	a = strtok(cadena,",.- ");
+        		fgets(cadena,256,yyout);
+                	a = strtok(cadena,",");
+			
                 	while (a != NULL)
                 	{
 				if (!strcmp(buscar, a))
@@ -294,7 +330,8 @@ FILE *archivo;
 					encontrado++;
 					if (encontrado == 1)
 					{
-					 
+					chek = 0;
+					 return chek;
 					break;
 					}
 				}
@@ -302,17 +339,65 @@ FILE *archivo;
 			}
 		}   
             	if (encontrado <= 0){
-			printf("\nLa variable %s no fue declarada\n",palabra);
-			printf("\n Linea en que se encontro: %d\n", contador);
+			return chek;
 				}
 	}
   	  else
    	 {
 		printf("\nHubo un error en la apertura del archivo\n");
-		fclose(archivo);
+		fclose(yyout);
 	}
    
 }
+
+
+char* buscarTipo(char *palabra)
+{
+
+ 	 int  encontrado = 0;
+    	 char cadena[300], nombre[50];
+    	 char *a,*buscar,*tipo;
+	 char* chek = NULL;
+	 if (yyout != NULL)
+    	{ 
+		buscar = palabra;
+            	rewind(yyout);
+ 	      	encontrado = 0;
+ 		while (!feof(yyout))
+		{
+        		contador++;
+        		fgets(cadena,256,yyout);
+                	a = strtok(cadena,",");
+			fprintf(stderr,"%s",cadena);
+                	while (a != NULL)
+                	{
+				if (!strcmp(buscar, a))
+				{
+					encontrado++;
+					if (encontrado == 1)
+					{
+					
+					 
+					fprintf(stderr,"\n");
+					}
+				}
+				
+				
+				a = strtok (NULL, ",");
+			}
+		}   
+            	if (encontrado <= 0){
+			return chek;
+				}
+	}
+  	  else
+   	 {
+		printf("\nHubo un error en la apertura del archivo\n");
+		fclose(yyout);
+	}
+   
+}
+
 
 void yyerror(char *s) { 
     fprintf(stderr, "%s\n", s);}
@@ -320,7 +405,9 @@ void yyerror(char *s) {
 
 int main () {
         yyin = fopen ("Codigo.txt", "r");
-        yyout = fopen ("output2.csv","w");
-        yyparse();
+        yyout = fopen ("output2.csv","w+");
+ yyparse();
+	       
+	fclose(yyin);
       	fclose(yyout);
 }
