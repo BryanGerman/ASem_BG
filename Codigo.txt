@@ -1,10 +1,10 @@
-int: arreglo
-int: barco
+int:c
+int:a
+int:b
 int main:(){
-float:armonia;
-armonia=armonia+2
+if(a==b && a==2+2)
+then{
+b= 2/5
+}
+return a}
 
-int:casa;
-return a}
-int main:(){
-return a}

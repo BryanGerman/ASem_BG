@@ -70,17 +70,19 @@
 int yylex(void);
 void yyerror(char *);
 char* buscarTipo(char *);
-char* buscar(char *);
+char* buscar(char *,FILE*);
+char* buscarVariable(char *,FILE*,char*);
 char *buscarInduccion(int);
 extern char* yytext;
 extern FILE* yyin;
 extern FILE* yyout;
 extern FILE* yyout2;
+extern FILE* yyout3;
 extern char* yycopy;
 extern int contador;
 char *palabra,*palabra2;
 
-#line 84 "AnalizadorS.tab.c" /* yacc.c:339  */
+#line 86 "AnalizadorS.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -157,15 +159,14 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 59 "AnalizadorS.y" /* yacc.c:355  */
+#line 62 "AnalizadorS.y" /* yacc.c:355  */
 
 int entero;
-char* tipo;
-char* identificador;
+char* string;
 int enteroNeg;
 float flotante;
 
-#line 169 "AnalizadorS.tab.c" /* yacc.c:355  */
+#line 170 "AnalizadorS.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -180,7 +181,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 184 "AnalizadorS.tab.c" /* yacc.c:358  */
+#line 185 "AnalizadorS.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -420,18 +421,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  2
+#define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   403
+#define YYLAST   287
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  37
+#define YYNTOKENS  40
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  22
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  101
+#define YYNRULES  88
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  203
+#define YYNSTATES  193
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -449,7 +450,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,    38,    37,     2,     2,     2,    39,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -481,17 +482,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    71,    71,    72,    73,    77,    84,    89,    95,   102,
-     107,   114,   117,   118,   119,   120,   121,   122,   123,   124,
-     125,   126,   127,   128,   131,   132,   137,   138,   139,   140,
-     141,   145,   146,   147,   148,   149,   150,   151,   152,   156,
-     157,   158,   159,   160,   164,   165,   171,   174,   177,   180,
-     181,   186,   189,   192,   195,   196,   201,   204,   207,   210,
-     211,   216,   219,   222,   227,   228,   229,   230,   231,   232,
-     233,   234,   238,   241,   244,   247,   252,   255,   258,   263,
-     271,   272,   273,   277,   286,   287,   288,   289,   292,   293,
-     294,   295,   296,   300,   301,   306,   308,   311,   312,   313,
-     317,   320
+       0,    73,    73,    74,    75,    76,    77,    81,    91,   100,
+     110,   120,   129,   140,   143,   144,   145,   146,   147,   148,
+     149,   150,   151,   152,   153,   154,   157,   158,   163,   164,
+     165,   166,   170,   171,   172,   173,   174,   175,   176,   177,
+     181,   182,   183,   184,   185,   189,   190,   213,   234,   255,
+     256,   279,   301,   325,   326,   327,   328,   329,   330,   331,
+     332,   336,   340,   362,   385,   405,   424,   451,   463,   464,
+     465,   469,   488,   509,   530,   551,   573,   593,   617,   618,
+     619,   620,   621,   625,   626,   629,   636,   641,   644
 };
 #endif
 
@@ -506,12 +505,12 @@ static const char *const yytname[] =
   "Lit_bool", "Lit_char", "Lit_String", "TipoDato", "PUNTOCOM",
   "SEPARADOR", "AGRPAR_AB", "AGRPAR_CE", "AGRCOR_AB", "AGRCOR_CE",
   "AGRLLAV_AB", "AGRLLAV_CE", "IF", "THEN", "ELSE", "WHILE", "DO", "INPUT",
-  "OUTPUT", "RETURN", "$accept", "prog", "asignacionglobal", "funcion",
-  "tamaVector", "bloqueComandosFunciones", "stackAsig", "if",
-  "bloqueComandosIF", "while", "stackOpLogControl", "bloqueComandosWhile",
-  "atribucion", "asignacionLocal", "stackOp", "OperacionArit",
-  "OperacionLog", "lista", "valorNumerico", "valorCaracter", "input",
-  "output", YY_NULLPTR
+  "OUTPUT", "RETURN", "'+'", "'*'", "'/'", "$accept", "prog",
+  "asignacionglobal", "funcion", "tamVector", "bloqueComandosFunciones",
+  "stackAsig", "if", "bloqueComandosIF", "while", "stackOpLogControl",
+  "bloqueComandosWhile", "atribucion", "asignacionLocal", "stackOp",
+  "OperacionArit", "OperacionLog", "lista", "num_entero", "valorNumerico",
+  "input", "output", YY_NULLPTR
 };
 #endif
 
@@ -523,14 +522,14 @@ static const yytype_uint16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290,   291
+     285,   286,   287,   288,   289,   290,   291,    43,    42,    47
 };
 # endif
 
-#define YYPACT_NINF -93
+#define YYPACT_NINF -91
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-93)))
+  (!!((Yystate) == (-91)))
 
 #define YYTABLE_NINF -1
 
@@ -541,27 +540,26 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     -93,    10,   -93,    32,   -93,   -93,   -12,     1,    -2,    27,
-      96,   -93,     9,    98,    29,    59,    26,    44,   -93,    80,
-      28,    64,   149,    51,    93,   210,    87,   103,   210,   -93,
-     167,   -93,     4,   115,    14,    14,   229,   111,   118,   109,
-     210,   210,   210,   210,   210,   -93,   -93,    44,   210,   121,
-     156,   135,   380,   163,   176,   177,    14,   155,   151,   182,
-     345,   -93,   174,   178,   345,   345,   -93,   -93,   169,   189,
-     191,   -93,   -93,   -93,   -93,   -93,   179,   205,   184,   211,
-      82,   -93,   -93,   -93,   -93,   -93,    46,   -93,   -93,   -93,
-     165,   -93,   192,   198,   175,   196,   240,   229,   215,   -93,
-     199,    14,    14,   -93,   -93,   204,   207,   203,   228,   208,
-     -93,   209,    81,   106,    82,   214,   165,   137,   154,   237,
-     -93,   282,   319,   285,   329,   332,   295,   -93,   216,   -93,
-     295,   295,   -93,   -93,   -93,   -93,   198,   -93,   -93,   -93,
-     -93,   249,   -93,   231,   -93,   -93,   255,   -93,   -93,   256,
-     257,   -93,   259,   -93,   255,   -93,   256,   257,   -93,   259,
-     234,    14,   -93,    14,   -93,    14,   -93,    14,   -93,    14,
-     -93,   295,   243,   248,   295,   -93,   -93,   253,   -93,   254,
-     -93,   -93,   345,   345,   345,   345,   345,   247,   -93,   -93,
-     -93,   265,   -93,   -93,   -93,   -93,   -93,   262,   264,   295,
-     -93,   268,   -93
+      36,    66,    69,   -91,   -91,    -6,    12,     5,    57,   -91,
+     -91,   -91,   106,   -91,   -91,    54,   144,    80,   122,    79,
+     117,   -91,   142,   125,   157,   149,   147,   104,   148,   165,
+     159,   148,   -91,    41,   -91,    11,   174,    -2,    -2,   164,
+     166,   167,   152,   148,   148,   148,   148,   148,   -91,   -91,
+     117,   148,   173,   189,   175,   108,     5,   194,   192,    -2,
+     172,   177,   205,   229,   -91,   188,   190,   229,   229,   -91,
+     -91,   202,   204,   219,   -91,   -91,   -91,   -91,   -91,   191,
+     222,   206,   230,   137,   -91,   121,   -91,   -91,   -91,    14,
+     226,   212,   218,    56,   217,   197,   164,   237,   -91,   216,
+      -2,    -2,   -91,   -91,   227,   228,   224,   247,   232,   -91,
+     234,     8,     0,   137,   233,   -91,    14,    95,     5,     5,
+       5,    72,   250,   -91,   163,   254,     7,   255,   213,   -91,
+     238,   -91,   213,   213,   -91,   -91,   -91,   -91,   218,   -91,
+     -91,   -91,   -91,   264,   -91,   244,   -91,   -91,   -91,   -91,
+     -91,   260,   -91,   226,   -91,   263,   -91,   -91,   -91,   -91,
+     260,   -91,   226,   101,    -2,    -2,    -2,    -2,   213,   246,
+     248,   213,   -91,   -91,   251,   -91,   252,   -91,   -91,   -91,
+     -91,   -91,   249,   -91,   -91,   -91,     5,   256,   253,   213,
+     -91,   257,   -91
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -569,43 +567,42 @@ static const yytype_int16 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       4,     0,     1,     0,     2,     3,     0,     0,     0,     0,
-       0,     5,     0,     0,     0,     0,     0,    25,    11,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,    93,
-       0,    24,     0,     0,     0,     0,     0,     0,     0,     0,
-      17,    20,    21,    18,    19,    22,    23,    94,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,    26,     0,     0,
-       0,    43,     0,     0,    65,    66,    70,    71,     0,     0,
-       0,    12,    15,    16,    13,    14,     0,     0,     0,     0,
-      75,    96,    95,    98,    97,    99,     0,    72,    81,    82,
-      73,    74,     0,    93,     0,     0,     0,     0,     0,    69,
-       0,     0,     0,    67,    68,     0,     0,     0,     0,     0,
-       8,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      79,    45,    48,    46,    47,    44,     0,    43,    27,    36,
-      32,    33,    37,    38,    40,    39,     0,    64,    42,    41,
-     100,     0,     6,     0,    10,     7,    85,    83,    86,     0,
-      90,    91,    88,    80,     0,    87,    84,     0,    92,    89,
-       0,     0,    55,     0,    58,     0,    56,     0,    57,     0,
-      54,     0,     0,     0,     0,    34,    35,     0,     9,     0,
-      76,    77,    50,    53,    51,    52,    49,    29,    31,    28,
-     101,     0,    60,    63,    61,    62,    59,     0,     0,     0,
-      78,     0,    30
+       6,     0,     0,     4,     5,     0,     0,     0,     0,     1,
+       2,     3,     0,     7,    85,     0,     0,     0,     0,     0,
+      27,    13,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    83,     0,    26,     0,     0,     0,     0,     0,
+       0,     0,     0,    19,    22,    23,    20,    21,    24,    25,
+      84,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    44,     0,     0,    54,    55,    59,
+      60,     0,     0,     0,    14,    17,    18,    15,    16,     0,
+       0,     0,     0,    63,    86,     0,    61,    66,    70,    62,
+       0,     0,    83,     0,     0,     0,     0,     0,    58,     0,
+       0,     0,    56,    57,     0,     0,     0,     0,     0,    10,
+       0,     0,     0,     0,     0,    69,     0,     0,     0,     0,
+       0,     0,     0,    67,    46,    48,    47,    45,     0,    44,
+      28,    37,    33,    34,    38,    39,    41,    40,     0,    53,
+      43,    42,    87,     0,     8,     0,    12,     9,    76,    72,
+      71,    80,    81,    78,    68,     0,    77,    73,    74,    75,
+       0,    82,    79,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    35,    36,     0,    11,     0,    64,    50,    52,
+      51,    49,    30,    32,    29,    88,     0,     0,     0,     0,
+      65,     0,    31
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -93,   -93,   -93,   -93,   -93,   341,   125,   -25,   -90,   -32,
-     -13,   101,   -16,     6,   195,   -73,   -62,   267,   -27,   -92,
-      33,    83
+     -91,   -91,   276,   279,   -91,   161,   243,   -38,   -90,   -11,
+      49,   -55,   -36,   -30,   199,   -83,    -3,   258,    -7,    13,
+     -28,   -13
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-      -1,     1,     4,     5,     9,    39,    40,    99,   173,    42,
-      57,    63,    64,    65,    87,    88,    89,    17,    90,    91,
-      66,    67
+      -1,     2,     3,     4,     8,    42,    43,    44,   170,    45,
+      60,    66,    46,    47,    86,    87,    88,    20,   116,    90,
+      48,    49
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -613,151 +610,122 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      41,    10,   124,    41,    62,    41,   128,    11,    52,    43,
-       2,    61,    43,    12,    43,    41,    41,    41,    41,    41,
-      55,   122,    58,    41,    43,    43,    43,    43,    43,    53,
-       3,    44,    43,    13,    44,    18,    44,    56,     6,   148,
-     175,   176,    21,    95,   155,     7,    44,    44,    44,    44,
-      44,   151,   114,    25,    44,    28,   158,     8,    45,   116,
-      81,    45,    82,    45,   129,   134,    26,   123,   181,    86,
-      29,   127,    61,    45,    45,    45,    45,    45,    30,    14,
-     130,    45,    22,    23,   189,   149,   152,   146,   138,   139,
-     156,   159,   112,   113,   129,    81,   147,    82,   129,   129,
-      14,   172,   131,    22,    27,   127,   127,    14,    46,   201,
-     130,    46,   150,    46,   130,   130,    14,    31,    14,    15,
-      81,    19,    82,    46,    46,    46,    46,    46,    54,   132,
-      48,    46,   131,   180,    68,    16,   131,   131,    20,   129,
-      24,    69,   129,   154,    24,    70,   127,    24,   182,   127,
-     183,    81,   184,    82,   185,   130,   186,    77,   130,   132,
-     157,   100,    78,   132,   132,   103,   104,   129,    81,    14,
-      82,    79,    22,    32,   127,   117,   118,   131,    92,   133,
-     131,   121,    93,   130,    97,    96,    94,    33,   105,    81,
-      22,    82,    83,    84,    85,    98,    34,   107,   135,    35,
-      36,    37,    38,    50,   132,   131,   101,   132,   106,   133,
-     102,   109,   110,   133,   133,   108,    32,   111,   119,   120,
-     125,   136,   162,   164,   166,   168,   170,   137,   140,   141,
-      33,   142,   132,    22,   143,    32,   144,   145,   153,    34,
-     179,   160,    35,    36,    37,    38,    32,   174,    81,    59,
-      82,    83,    84,    85,   133,   177,    60,   133,    34,   178,
-      59,    35,    36,    37,    38,   112,   117,   126,   113,    34,
-     118,   187,    35,    36,    37,    38,   188,   190,   197,   191,
-     198,   115,   133,   192,   193,   194,   195,   196,    32,   199,
-     200,    32,   112,    47,   161,   117,   202,   165,     0,     0,
-       0,    32,    59,     0,     0,    59,     0,     0,     0,    60,
-       0,    34,    60,     0,    34,    59,    37,    38,     0,    37,
-      38,     0,   171,     0,    34,    32,     0,    35,    36,    37,
-      38,   163,     0,     0,     0,    32,     0,     0,    32,    59,
-       0,   167,     0,     0,   169,     0,    60,     0,    34,    59,
-       0,    32,    59,    37,    38,     0,    60,     0,    34,    60,
-       0,    34,     0,    37,    38,    59,    37,    38,     0,    49,
-       0,    51,    60,     0,    34,     0,     0,     0,     0,    37,
-      38,    71,    72,    73,    74,    75,    80,     0,     0,    76,
-       0,     0,     0,     0,    81,     0,    82,    83,    84,    85,
-       0,     0,     0,    86
+      15,    64,   115,    67,    58,   130,   151,    12,    99,    68,
+     125,    69,   102,   103,   148,    55,    84,   117,    13,   166,
+      14,    59,   149,   150,   117,    98,    70,    67,    65,    98,
+      98,    67,    67,    68,   156,    69,    56,    68,    68,    69,
+      69,   137,   172,   173,   118,   119,   120,    35,    89,    91,
+      70,   118,   119,   120,    70,    70,     1,   129,    64,   132,
+      67,    36,   124,    16,    25,   133,    68,   134,    69,     9,
+      37,    14,     5,    38,    39,    40,    41,    53,   160,     6,
+      21,   184,   135,    70,   131,   136,   126,    61,    84,     1,
+     169,     7,   132,    24,   129,   129,   132,   132,   133,   191,
+     134,   155,   133,   133,   134,   134,    28,   176,    94,   152,
+      14,   157,   158,   159,    83,   135,    14,   131,   161,   135,
+     135,   131,   131,    14,    84,   153,    17,   113,    34,    18,
+     129,    85,   132,   129,   162,   132,    14,    84,   133,    29,
+     134,   133,    17,   134,    85,    25,    26,   111,   112,   140,
+     141,   129,    31,   132,    35,   135,   177,   131,   135,   133,
+     131,   134,    17,    32,    17,    25,    30,    22,    36,    17,
+      35,    25,    25,   111,    33,   164,   135,    37,   131,   188,
+      38,    39,    40,    41,    62,    17,    51,    57,    73,    71,
+      72,    63,    52,    37,    54,    81,    38,    39,    40,    41,
+      92,    93,    95,    35,    74,    75,    76,    77,    78,    80,
+      96,    82,    79,   178,   179,   180,   181,    62,    97,    35,
+     100,   104,   101,   105,   128,   106,    37,   107,   108,    38,
+      39,    40,    41,    62,   109,    35,   110,   121,   122,   123,
+     168,   127,    37,   138,   139,    38,    39,    40,    41,    62,
+     143,   142,   144,   145,   163,    19,    63,   154,    37,    23,
+     146,    27,   147,    40,    41,    27,   165,   167,    27,   171,
+     174,   112,   175,   111,   182,   185,   183,   186,    10,   190,
+     187,    11,     0,   189,   114,   192,     0,    50
 };
 
 static const yytype_int16 yycheck[] =
 {
-      25,    13,    94,    28,    36,    30,    96,     6,     4,    25,
-       0,    36,    28,    15,    30,    40,    41,    42,    43,    44,
-       6,    94,    35,    48,    40,    41,    42,    43,    44,    25,
-      20,    25,    48,     6,    28,    26,    30,    23,     6,   112,
-     130,   131,    13,    56,   117,    13,    40,    41,    42,    43,
-      44,   113,     6,    27,    48,    27,   118,    25,    25,    86,
-      14,    28,    16,    30,    96,    97,    22,    94,   160,    23,
-       6,    96,    97,    40,    41,    42,    43,    44,    27,    20,
-      96,    48,    23,    24,   174,   112,   113,     6,   101,   102,
-     117,   118,    10,    11,   126,    14,    15,    16,   130,   131,
-      20,   126,    96,    23,    24,   130,   131,    20,    25,   199,
-     126,    28,     6,    30,   130,   131,    20,    24,    20,    23,
-      14,    23,    16,    40,    41,    42,    43,    44,    13,    96,
-      27,    48,   126,   160,    23,    10,   130,   131,    13,   171,
-      15,    23,   174,     6,    19,    36,   171,    22,   161,   174,
-     163,    14,   165,    16,   167,   171,   169,    36,   174,   126,
-       6,    60,     6,   130,   131,    64,    65,   199,    14,    20,
-      16,    36,    23,     6,   199,    10,    11,   171,    15,    96,
-     174,     6,     6,   199,    33,    30,     9,    20,    19,    14,
-      23,    16,    17,    18,    19,    13,    29,     6,    97,    32,
-      33,    34,    35,    36,   171,   199,    32,   174,    19,   126,
-      32,     6,    28,   130,   131,    36,     6,     6,    26,    21,
-      24,     6,   121,   122,   123,   124,   125,    28,    24,    22,
-      20,    28,   199,    23,     6,     6,    28,    28,    24,    29,
-       6,     4,    32,    33,    34,    35,     6,    31,    14,    20,
-      16,    17,    18,    19,   171,     6,    27,   174,    29,    28,
-      20,    32,    33,    34,    35,    10,    10,    27,    11,    29,
-      11,    28,    32,    33,    34,    35,    28,    24,    31,    25,
-      15,    86,   199,   182,   183,   184,   185,   186,     6,    27,
-      26,     6,    10,    26,    12,    10,    28,    12,    -1,    -1,
-      -1,     6,    20,    -1,    -1,    20,    -1,    -1,    -1,    27,
-      -1,    29,    27,    -1,    29,    20,    34,    35,    -1,    34,
-      35,    -1,    27,    -1,    29,     6,    -1,    32,    33,    34,
-      35,    12,    -1,    -1,    -1,     6,    -1,    -1,     6,    20,
-      -1,    12,    -1,    -1,    12,    -1,    27,    -1,    29,    20,
-      -1,     6,    20,    34,    35,    -1,    27,    -1,    29,    27,
-      -1,    29,    -1,    34,    35,    20,    34,    35,    -1,    28,
-      -1,    30,    27,    -1,    29,    -1,    -1,    -1,    -1,    34,
-      35,    40,    41,    42,    43,    44,     6,    -1,    -1,    48,
-      -1,    -1,    -1,    -1,    14,    -1,    16,    17,    18,    19,
-      -1,    -1,    -1,    23
+       7,    39,    85,    39,     6,    95,     6,    13,    63,    39,
+      93,    39,    67,    68,     6,     4,    16,    10,     6,    12,
+      15,    23,    14,    15,    10,    63,    39,    63,    39,    67,
+      68,    67,    68,    63,   117,    63,    25,    67,    68,    67,
+      68,    96,   132,   133,    37,    38,    39,     6,    55,    56,
+      63,    37,    38,    39,    67,    68,    20,    95,    96,    95,
+      96,    20,     6,     6,    23,    95,    96,    95,    96,     0,
+      29,    15,     6,    32,    33,    34,    35,    36,     6,    13,
+      26,   171,    95,    96,    95,    96,    93,    38,    16,    20,
+     128,    25,   128,    13,   132,   133,   132,   133,   128,   189,
+     128,     6,   132,   133,   132,   133,    27,     6,    59,   112,
+      15,   118,   119,   120,     6,   128,    15,   128,   121,   132,
+     133,   132,   133,    15,    16,   112,    20,     6,    24,    23,
+     168,    23,   168,   171,   121,   171,    15,    16,   168,    22,
+     168,   171,    20,   171,    23,    23,    24,    10,    11,   100,
+     101,   189,    27,   189,     6,   168,   163,   168,   171,   189,
+     171,   189,    20,     6,    20,    23,    24,    23,    20,    20,
+       6,    23,    23,    10,    27,    12,   189,    29,   189,   186,
+      32,    33,    34,    35,    20,    20,    27,    13,    36,    23,
+      23,    27,    31,    29,    33,     6,    32,    33,    34,    35,
+       6,     9,    30,     6,    43,    44,    45,    46,    47,    36,
+      33,    36,    51,   164,   165,   166,   167,    20,    13,     6,
+      32,    19,    32,    19,    27,     6,    29,    36,     6,    32,
+      33,    34,    35,    20,    28,     6,     6,    11,    26,    21,
+      27,    24,    29,     6,    28,    32,    33,    34,    35,    20,
+      22,    24,    28,     6,     4,    12,    27,    24,    29,    16,
+      28,    18,    28,    34,    35,    22,    12,    12,    25,    31,
+       6,    11,    28,    10,    28,    24,    28,    25,     2,    26,
+      31,     2,    -1,    27,    85,    28,    -1,    29
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    38,     0,    20,    39,    40,     6,    13,    25,    41,
-      13,     6,    15,     6,    20,    23,    43,    54,    26,    23,
-      43,    13,    23,    24,    43,    27,    22,    24,    27,     6,
-      27,    24,     6,    20,    29,    32,    33,    34,    35,    42,
-      43,    44,    46,    49,    50,    57,    58,    54,    27,    42,
-      36,    42,     4,    25,    13,     6,    23,    47,    47,    20,
-      27,    44,    46,    48,    49,    50,    57,    58,    23,    23,
-      36,    42,    42,    42,    42,    42,    42,    36,     6,    36,
-       6,    14,    16,    17,    18,    19,    23,    51,    52,    53,
-      55,    56,    15,     6,     9,    47,    30,    33,    13,    44,
-      48,    32,    32,    48,    48,    19,    19,     6,    36,     6,
-      28,     6,    10,    11,     6,    51,    55,    10,    11,    26,
-      21,     6,    52,    55,    56,    24,    27,    44,    45,    46,
-      49,    50,    57,    58,    46,    48,     6,    28,    47,    47,
-      24,    22,    28,     6,    28,    28,     6,    15,    52,    55,
-       6,    53,    55,    24,     6,    52,    55,     6,    53,    55,
-       4,    12,    48,    12,    48,    12,    48,    12,    48,    12,
-      48,    27,    44,    45,    31,    45,    45,     6,    28,     6,
-      55,    56,    47,    47,    47,    47,    47,    28,    28,    45,
-      24,    25,    48,    48,    48,    48,    48,    31,    15,    27,
-      26,    45,    28
+       0,    20,    41,    42,    43,     6,    13,    25,    44,     0,
+      42,    43,    13,     6,    15,    58,     6,    20,    23,    46,
+      57,    26,    23,    46,    13,    23,    24,    46,    27,    22,
+      24,    27,     6,    27,    24,     6,    20,    29,    32,    33,
+      34,    35,    45,    46,    47,    49,    52,    53,    60,    61,
+      57,    27,    45,    36,    45,     4,    25,    13,     6,    23,
+      50,    50,    20,    27,    47,    49,    51,    52,    53,    60,
+      61,    23,    23,    36,    45,    45,    45,    45,    45,    45,
+      36,     6,    36,     6,    16,    23,    54,    55,    56,    58,
+      59,    58,     6,     9,    50,    30,    33,    13,    47,    51,
+      32,    32,    51,    51,    19,    19,     6,    36,     6,    28,
+       6,    10,    11,     6,    54,    55,    58,    10,    37,    38,
+      39,    11,    26,    21,     6,    55,    58,    24,    27,    47,
+      48,    49,    52,    53,    60,    61,    49,    51,     6,    28,
+      50,    50,    24,    22,    28,     6,    28,    28,     6,    14,
+      15,     6,    56,    59,    24,     6,    55,    58,    58,    58,
+       6,    56,    59,     4,    12,    12,    12,    12,    27,    47,
+      48,    31,    48,    48,     6,    28,     6,    58,    50,    50,
+      50,    50,    28,    28,    48,    24,    25,    31,    58,    27,
+      26,    48,    28
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    37,    38,    38,    38,    39,    40,    40,    40,    40,
-      40,    41,    42,    42,    42,    42,    42,    42,    42,    42,
-      42,    42,    42,    42,    43,    43,    44,    44,    44,    44,
-      44,    45,    45,    45,    45,    45,    45,    45,    45,    46,
-      46,    46,    46,    46,    47,    47,    47,    47,    47,    47,
-      47,    47,    47,    47,    47,    47,    47,    47,    47,    47,
-      47,    47,    47,    47,    48,    48,    48,    48,    48,    48,
-      48,    48,    49,    49,    49,    49,    49,    49,    49,    50,
-      51,    51,    51,    52,    52,    52,    52,    52,    53,    53,
-      53,    53,    53,    54,    54,    55,    55,    56,    56,    56,
-      57,    58
+       0,    40,    41,    41,    41,    41,    41,    42,    43,    43,
+      43,    43,    43,    44,    45,    45,    45,    45,    45,    45,
+      45,    45,    45,    45,    45,    45,    46,    46,    47,    47,
+      47,    47,    48,    48,    48,    48,    48,    48,    48,    48,
+      49,    49,    49,    49,    49,    50,    50,    50,    50,    50,
+      50,    50,    50,    51,    51,    51,    51,    51,    51,    51,
+      51,    52,    52,    52,    52,    52,    52,    53,    54,    54,
+      54,    55,    55,    55,    55,    55,    55,    55,    56,    56,
+      56,    56,    56,    57,    57,    58,    59,    60,    61
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     2,     2,     0,     3,     9,    10,     9,    10,
-       9,     3,     2,     2,     2,     2,     2,     1,     1,     1,
-       1,     1,     1,     1,     3,     1,     2,     4,     6,     6,
-      10,     3,     1,     1,     2,     2,     1,     1,     1,     4,
-       4,     4,     4,     1,     3,     3,     3,     3,     3,     5,
-       5,     5,     5,     5,     4,     4,     4,     4,     4,     6,
-       6,     6,     6,     6,     3,     1,     1,     2,     2,     1,
-       1,     1,     3,     3,     3,     3,     6,     6,     9,     4,
-       3,     1,     1,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     3,     3,     3,     1,     1,     1,     1,     1,
-       4,     6
+       0,     2,     2,     2,     1,     1,     0,     3,     9,    10,
+       9,    10,     9,     3,     2,     2,     2,     2,     2,     1,
+       1,     1,     1,     1,     1,     1,     3,     1,     4,     6,
+       6,    10,     3,     1,     1,     2,     2,     1,     1,     1,
+       4,     4,     4,     4,     1,     3,     3,     3,     3,     5,
+       5,     5,     5,     3,     1,     1,     2,     2,     1,     1,
+       1,     3,     3,     3,     6,     9,     3,     4,     3,     1,
+       1,     3,     3,     3,     3,     3,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     1,     1,     4,     6
 };
 
 
@@ -1433,285 +1401,587 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 5:
-#line 77 "AnalizadorS.y" /* yacc.c:1646  */
+        case 7:
+#line 81 "AnalizadorS.y" /* yacc.c:1646  */
     {
-							palabra = (yyvsp[0].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s AsignacionGlobal,",(yyvsp[0].identificador),(yyvsp[-2].tipo));} 
+							char *alcance;
+							palabra = (yyvsp[0].string);
+							if(buscarVariable(palabra,yyout,"AG")==NULL){	
+									fprintf(yyout,"%s %s AG, \n",(yyvsp[0].string),(yyvsp[-2].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
-#line 1444 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 6:
-#line 84 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-							palabra = (yyvsp[-7].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion,",(yyvsp[-7].identificador),(yyvsp[-8].tipo));} 
-							}
-#line 1454 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 7:
-#line 89 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-							palabra = (yyvsp[-8].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion,",(yyvsp[-8].identificador),(yyvsp[-9].tipo));} 
-							}
-#line 1464 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1415 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 96 "AnalizadorS.y" /* yacc.c:1646  */
+#line 91 "AnalizadorS.y" /* yacc.c:1646  */
     {
-							palabra = (yyvsp[-7].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion,",(yyvsp[-7].identificador),(yyvsp[-8].tipo));} 
+							char* alcance;
+							palabra = (yyvsp[-7].string);
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU, \n",(yyvsp[-7].string),(yyvsp[-8].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
-#line 1474 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1429 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 102 "AnalizadorS.y" /* yacc.c:1646  */
+#line 100 "AnalizadorS.y" /* yacc.c:1646  */
     {
-							palabra = (yyvsp[-7].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion[],",(yyvsp[-7].identificador),(yyvsp[-9].tipo));} 
+							char* alcance;
+							palabra = (yyvsp[-8].string);
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU, \n",(yyvsp[-8].string),(yyvsp[-9].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
-#line 1484 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1443 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 107 "AnalizadorS.y" /* yacc.c:1646  */
+#line 110 "AnalizadorS.y" /* yacc.c:1646  */
     {
-							palabra = (yyvsp[-6].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion[],",(yyvsp[-6].identificador),(yyvsp[-8].tipo));} 
+							char* alcance;
+							palabra = (yyvsp[-7].string);
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU, \n",(yyvsp[-7].string),(yyvsp[-8].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
-#line 1494 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1457 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
-  case 45:
-#line 165 "AnalizadorS.y" /* yacc.c:1646  */
-    { 	palabra = (yyvsp[-2].identificador);
-								palabra = (yyvsp[0].identificador);
-								buscar(palabra2);
-								buscar(palabra);
-								}
-#line 1504 "AnalizadorS.tab.c" /* yacc.c:1646  */
+  case 11:
+#line 120 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							char* alcance;
+							palabra = (yyvsp[-7].string);
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU[], \n",(yyvsp[-7].string),(yyvsp[-9].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
+#line 1471 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 129 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							char* alcance;
+							palabra = (yyvsp[-6].string);
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU[], \n",(yyvsp[-6].string),(yyvsp[-8].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
+#line 1485 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 171 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-								palabra = (yyvsp[-2].identificador);
-								buscar(palabra);}
+#line 190 "AnalizadorS.y" /* yacc.c:1646  */
+    { 	palabra = (yyvsp[-2].string);
+														palabra2 = (yyvsp[0].string);
+														buscar(palabra,yyout);
+														buscar(palabra2,yyout);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscar(palabra2,yyout);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
 #line 1512 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 174 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-								palabra = (yyvsp[-2].identificador);
-								buscar(palabra);}
-#line 1520 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 48:
-#line 177 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-								palabra = (yyvsp[-2].identificador);
-								buscar(palabra);}
-#line 1528 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 50:
-#line 181 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-											palabra = (yyvsp[-4].identificador);
-											palabra = (yyvsp[-2].identificador);
-											buscar(palabra);
-											buscar(palabra2);}
+#line 213 "AnalizadorS.y" /* yacc.c:1646  */
+    { 			palabra = (yyvsp[-2].string);
+														int numero;
+														numero = (yyvsp[0].entero);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
 #line 1538 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
+  case 48:
+#line 234 "AnalizadorS.y" /* yacc.c:1646  */
+    {		palabra = (yyvsp[-2].string);
+														int numero;
+														numero = (yyvsp[0].entero);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+#line 1564 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 50:
+#line 256 "AnalizadorS.y" /* yacc.c:1646  */
+    { 	
+														palabra = (yyvsp[-4].string);
+														palabra2 = (yyvsp[-2].string);
+														buscar(palabra,yyout);
+														buscar(palabra2,yyout);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscar(palabra2,yyout);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+#line 1592 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
   case 51:
-#line 186 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-											palabra = (yyvsp[-4].identificador);
-											buscar(palabra);}
-#line 1546 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 279 "AnalizadorS.y" /* yacc.c:1646  */
+    {		
+														palabra = (yyvsp[-4].string);
+														int numero;
+														numero = (yyvsp[-2].entero);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+#line 1619 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 189 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-											palabra = (yyvsp[-4].identificador);
-											buscar(palabra);}
-#line 1554 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 53:
-#line 192 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-											palabra = (yyvsp[-4].identificador);
-											buscar(palabra);}
-#line 1562 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 55:
-#line 196 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-											palabra = (yyvsp[-3].identificador);
-											palabra = (yyvsp[-1].identificador);
-											buscar(palabra);
-											buscar(palabra2);}
-#line 1572 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 56:
-#line 201 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-										palabra = (yyvsp[-3].identificador);
-										buscar(palabra);}
-#line 1580 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 57:
-#line 204 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-										palabra = (yyvsp[-3].identificador);
-										buscar(palabra);}
-#line 1588 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 58:
-#line 207 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-										palabra = (yyvsp[-3].identificador);
-										buscar(palabra);}
-#line 1596 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 60:
-#line 211 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-														palabra = (yyvsp[-5].identificador);
-														palabra = (yyvsp[-3].identificador);
-														buscar(palabra);
-														buscar(palabra2);}
-#line 1606 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 61:
-#line 216 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-														palabra = (yyvsp[-5].identificador);
-														buscar(palabra);}
-#line 1614 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 62:
-#line 219 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-														palabra = (yyvsp[-5].identificador);
-														buscar(palabra);}
-#line 1622 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 63:
-#line 222 "AnalizadorS.y" /* yacc.c:1646  */
-    { char *palabra;
-														palabra = (yyvsp[-5].identificador);
-														buscar(palabra);}
-#line 1630 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 72:
-#line 238 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-							palabra = (yyvsp[-2].identificador);
-							buscar(palabra);}
-#line 1638 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 73:
-#line 241 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-							palabra = (yyvsp[-2].identificador);
-							buscar(palabra);}
+#line 301 "AnalizadorS.y" /* yacc.c:1646  */
+    {		
+														palabra = (yyvsp[-4].string);
+														int numero;
+														numero = (yyvsp[-2].entero);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
 #line 1646 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
-  case 74:
-#line 244 "AnalizadorS.y" /* yacc.c:1646  */
+  case 61:
+#line 336 "AnalizadorS.y" /* yacc.c:1646  */
     { 
-							palabra = (yyvsp[-2].identificador);
-							buscar(palabra);}
-#line 1654 "AnalizadorS.tab.c" /* yacc.c:1646  */
+							palabra = (yyvsp[-2].string);
+							buscar(palabra,yyout);
+							}
+#line 1655 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 62:
+#line 340 "AnalizadorS.y" /* yacc.c:1646  */
+    { 
+											palabra = (yyvsp[-2].string);
+											fprintf(yyout3,"%s, %d,",(yyvsp[-2].string),(yyvsp[0].entero));
+											char *busca1;
+											char *busca2;
+											busca1 = buscar(palabra,yyout);
+											busca2 = buscar(palabra2,yyout);
+											if(busca1!=NULL){ 
+												if(busca2!=NULL){
+													if(strcmp(busca1,busca2)==0){
+														fprintf(stderr,"\nLas variables son compatibles\n");
+														 fprintf(yyout3,"%s %d,\n",(yyvsp[-2].string), (yyvsp[0].entero));
+													}
+													else{
+														fprintf(stderr,"Las variables no son compatibles");
+													}
+												}	
+											}						
+											else {
+												fprintf(stderr,"variable %s no declarada",palabra);
+											}
+										}
+#line 1682 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 63:
+#line 362 "AnalizadorS.y" /* yacc.c:1646  */
+    { 	
+														palabra = (yyvsp[-2].string);
+														palabra2 = (yyvsp[0].string);
+														buscar(palabra,yyout);
+														buscar(palabra2,yyout);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscar(palabra2,yyout);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+#line 1710 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 64:
+#line 385 "AnalizadorS.y" /* yacc.c:1646  */
+    { 
+											
+								palabra = (yyvsp[-5].string);
+								int numero;
+								numero = (yyvsp[0].entero);
+								buscar(palabra,yyout);
+								char *busca1;
+								char *busca2;
+								busca1 = buscar(palabra,yyout);
+								busca2 = buscarInduccion(numero);
+								if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"\nLas variables son compatibles\n");
+									 fprintf(yyout3,"%s %d,\n",(yyvsp[-5].string), (yyvsp[0].entero));				}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}}
+#line 1735 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 65:
+#line 405 "AnalizadorS.y" /* yacc.c:1646  */
+    { 
+											
+								palabra = (yyvsp[-8].string);
+								palabra2 = (yyvsp[-3].string);
+								char *busca1;
+								char *busca2;
+								busca1 = buscar(palabra,yyout);
+								busca2 = buscar(palabra2,yyout);
+								if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"\nLas variables son compatibles\n");
+									 fprintf(yyout3,"%s %d,\n",(yyvsp[-8].string), (yyvsp[-1].entero));}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}}
+#line 1758 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 424 "AnalizadorS.y" /* yacc.c:1646  */
+    { 
+											palabra = (yyvsp[-2].string);
+											fprintf(yyout3,"%s, %d,",(yyvsp[-2].string),(yyvsp[0].entero));
+											char *busca1;
+											char *busca2;
+											busca1 = buscar(palabra,yyout);
+											busca2 = buscar(palabra2,yyout);
+											if(busca1!=NULL){ 
+												if(busca2!=NULL){
+													if(strcmp(busca1,busca2)==0){
+														fprintf(stderr,"\nLas variables son compatibles\n");
+														 fprintf(yyout3,"%s %d,\n",(yyvsp[-2].string), (yyvsp[0].entero));
+													}
+													else{
+														fprintf(stderr,"Las variables no son compatibles");
+													}
+												}	
+											}						
+											else {
+												fprintf(stderr,"variable %s no declarada",palabra);
+											}
+										}
+#line 1785 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 67:
+#line 451 "AnalizadorS.y" /* yacc.c:1646  */
+    {
+							char *alcance;
+							palabra = (yyvsp[-1].string);
+							alcance = "AL";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s AL, \n",(yyvsp[-1].string),(yyvsp[-3].string));
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
+#line 1799 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 71:
+#line 469 "AnalizadorS.y" /* yacc.c:1646  */
+    {	
+							palabra = (yyvsp[-2].string);
+							int numero = (yyvsp[0].entero);
+							fprintf(yyout2,"%d int,",numero);
+							char *busca1;
+							char *busca2;
+							busca1 = buscar(palabra,yyout);
+							busca2 = buscarInduccion(numero);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+								
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"Las variables son compatibles");}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}
+#line 1823 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 72:
+#line 488 "AnalizadorS.y" /* yacc.c:1646  */
+    {	
+							palabra = (yyvsp[-2].string);
+							float numero = (yyvsp[0].flotante);
+							fprintf(yyout2,"%f float",(yyvsp[0].flotante));
+							char *busca1;
+							char *busca2;
+							busca1 = buscar(palabra,yyout);
+							busca2 = buscarInduccion(numero);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"Las variables son compatibles");}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} 
+								}
+								
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}
+#line 1848 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 73:
+#line 509 "AnalizadorS.y" /* yacc.c:1646  */
+    {	
+							
+							int numero = (yyvsp[-2].entero);
+							int numero2 = (yyvsp[0].entero);
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									(yyval.entero) = (yyvsp[-2].entero) + (yyvsp[0].entero);}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}
+#line 1874 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 74:
+#line 530 "AnalizadorS.y" /* yacc.c:1646  */
+    {	
+							
+							int numero = (yyvsp[-2].entero);
+							int numero2 = (yyvsp[0].entero);
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									(yyval.entero) = (yyvsp[-2].entero) * (yyvsp[0].entero);}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}
+#line 1900 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 247 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-								palabra = (yyvsp[-2].identificador);
-								palabra2 = (yyvsp[0].identificador);
-								buscar(palabra);
-								buscar(palabra2);}
-#line 1664 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 551 "AnalizadorS.y" /* yacc.c:1646  */
+    {	
+							
+							int numero = (yyvsp[-2].entero);
+							int numero2 = (yyvsp[0].entero);
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									(yyval.entero) = (yyvsp[-2].entero) / (yyvsp[0].entero);}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}
+#line 1926 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 252 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-											palabra = (yyvsp[-5].identificador);
-											buscar(palabra);}
-#line 1672 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 573 "AnalizadorS.y" /* yacc.c:1646  */
+    {	palabra = (yyvsp[-2].string);
+								palabra2 = (yyvsp[0].string);
+								buscar(palabra,yyout);
+								buscar(palabra2,yyout);
+								palabra = (yyvsp[-2].string);
+								char *busca1;
+								char *busca2;
+								busca1 = buscar(palabra,yyout);
+								busca2 = buscar(palabra2,yyout);
+								if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"\nLas variables son compatibles\n");}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}}
+#line 1949 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 255 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-											palabra = (yyvsp[-5].identificador);
-											buscar(palabra);}
-#line 1680 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 78:
-#line 258 "AnalizadorS.y" /* yacc.c:1646  */
-    { 
-											palabra = (yyvsp[-8].identificador);
-											buscar(palabra);}
-#line 1688 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 79:
-#line 263 "AnalizadorS.y" /* yacc.c:1646  */
-    {
-							palabra = (yyvsp[-1].identificador);
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s AsignacionLocal,",(yyvsp[-1].identificador),(yyvsp[-3].tipo));} 
+#line 594 "AnalizadorS.y" /* yacc.c:1646  */
+    {	
+							
+							int numero = (yyvsp[-2].entero);
+							int numero2 = (yyvsp[0].entero);
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									(yyval.entero) = (yyvsp[-2].entero) + (yyvsp[0].entero);}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
 							}
-#line 1698 "AnalizadorS.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 83:
-#line 277 "AnalizadorS.y" /* yacc.c:1646  */
-    {	palabra = (yyvsp[-2].identificador);
-							fprintf(stderr,"%sholaaaaaaaaa",buscarInduccion((yyvsp[0].entero)));
-							if(strcmp(buscar(palabra),buscarInduccion((yyvsp[0].entero)))==0)
-								{fprintf(stderr,"holaaaaaaaaaaaaaa");} 
-							else if(strcmp(buscar(palabra),buscarInduccion((yyvsp[0].entero)))==0)
-								{fprintf(stderr,"hola");}
 							else {fprintf(stderr,"variable %s no declarada",palabra);}
 								}
-#line 1711 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1975 "AnalizadorS.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 85:
+#line 629 "AnalizadorS.y" /* yacc.c:1646  */
+    {(yyval.entero) = (yyvsp[0].entero);}
+#line 1981 "AnalizadorS.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1715 "AnalizadorS.tab.c" /* yacc.c:1646  */
+#line 1985 "AnalizadorS.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1939,67 +2209,107 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 325 "AnalizadorS.y" /* yacc.c:1906  */
+#line 649 "AnalizadorS.y" /* yacc.c:1906  */
 
 
-char* buscar(char *palabra)
-{
-
+char* buscarVariable(char *palabra,FILE* archivo,char* alcance){
  	 int  encontrado = 0;
     	 char cadena[300],cadena2[300];
     	 char *buscar,*nombre[50],*nombre2[3][50],*tipo=NULL;
 	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
-	 if (yyout != NULL)
-    	{ 
+	 if (archivo != NULL){ 
 		buscar = palabra;
-            	rewind(yyout);
+            	rewind(archivo);
  	      	encontrado = 0;
- 		while (feof(yyout)==0)
-		{
-        		fgets(cadena,256,yyout);
+ 		while (feof(archivo)==0){
+        		fgets(cadena,256,archivo);
 			char *token = strtok(cadena,",");
-			while (token)
-                	{
+			while (token){
 				nombre[i] = token;
 				token = strtok (NULL, ",");
 				i++;
 			}
-			
 			a=0;
-			while(a<=3)
-			{
+			while(a<3){
 				j=0;
 				char *token2 = strtok(nombre[a]," ");
-				while (token2)
-                		{
-					
+				while (token2){
 					nombre2[a][j] = token2;
-					if (strcmp(buscar, nombre2[a][j])==0)
-					{
+			
+						
+					if (strcmp(buscar, nombre2[0][j])==0 && strcmp(alcance, nombre2[a][j])==0){
 						encontrado++;
 						if(encontrado ==1){
 							b =a;
 							c = j;
-							tipo ="Encontrada";
+							tipo ="Encontrada";		
 							}
+					
+					}
+					token2 = strtok (NULL, " ");
+					tipo = nombre2[b][1];
+						
+					j++;
+					
+					
+				}
+				a++;
+			}
+		}
+		if (encontrado <= 0){
+			tipo = NULL;
+		}   
+	}
+  	  else
+   	 {
+		printf("\nHubo un error en la apertura del archivo\n");
+		fclose(yyout);
+	}
+	return tipo;
+   
+}
 
+char* buscar(char *palabra,FILE* archivo){
+ 	 int  encontrado = 0;
+    	 char cadena[300],cadena2[300];
+    	 char *buscar,*nombre[50],*nombre2[3][50],*tipo=NULL;
+	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
+	 if (archivo != NULL){ 
+		buscar = palabra;
+            	rewind(archivo);
+ 	      	encontrado = 0;
+ 		while (feof(archivo)==0){
+        		fgets(cadena,256,archivo);
+			char *token = strtok(cadena,",");
+			while (token){
+				nombre[i] = token;
+				token = strtok (NULL, ",");
+				i++;
+			}
+			a=0;
+			while(a<=3){
+				j=0;
+				char *token2 = strtok(nombre[a]," ");
+				while (token2){
+					nombre2[a][j] = token2;
+					if (strcmp(buscar, nombre2[a][j])==0){
+						encontrado++;
+						if(encontrado ==1){
+							b =a;
+							c = j;
+							tipo ="Encontrada";		
+							}
 					}
 					token2 = strtok (NULL, " ");
 					tipo = nombre2[b][1];
 					j++;
-				
 				}
 				a++;
 			}
-		
-						
-			
 		}
 		if (encontrado <= 0){
 			tipo = NULL;
-				}   
-	
-            	
+		}   
 	}
   	  else
    	 {
@@ -2013,96 +2323,53 @@ char* buscar(char *palabra)
 char* buscarInduccion(int numero)
 {
 
- 	 int  encontrado = 0;
-    	 char cadena[300],cadena2[300];
-    	 char *nombre[50],*nombre2[3][50],*tipo=NULL;
-	int buscar;
-	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
-	 if (yyout2 != NULL)
-    	{ 
+ 	 	int  encontrado = 0;
+   		char cadena[300],cadena2[300];
+    	char *nombre3[50],*nombre4[3][50],*tipo=NULL;
+		int buscar;
 		buscar = numero;
-		
-            	rewind(yyout2);
+		int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
+	 	if (yyout2 != NULL){ 
+			rewind(yyout2);
  	      	encontrado = 0;
- 		while (feof(yyout2)==0)
-		{
-        		fgets(cadena,256,yyout2);
-			char *token = strtok(cadena,",");
-			while (token)
-                	{
-				nombre[i] = token;
-				token = strtok (NULL, ",");
-				i++;
-			}
-			
-			a=0;
-			while(a<=3)
-			{
-				j=0;
-				char *token2 = strtok(nombre[a]," ");
-				while (token2)
-                		{
-					
-					nombre2[a][j] = token2;
-					if (strcmp(numero, nombre2[a][j])==0)
-					{
-						encontrado++;
-						if(encontrado ==1){
-							b =a;
-							c = j;
-							tipo ="Encontrada";
-							}
-
+ 				while (feof(yyout2)==0){
+	        		fgets(cadena,256,yyout2);
+					char *token = strtok(cadena,",");
+					while (token){
+						nombre3[i] = token;
+						token = strtok (NULL, ",");
+						i++;
 					}
-					token2 = strtok (NULL, " ");
-					tipo = nombre2[b][1];
-					j++;
-				
-				}
-				a++;
-			}
-		
-						
-			
+					a=0;
+					while(a<1)	{
+						j=0;
+						char *token2 = strtok(nombre3[a]," ");
+						while (token2){				
+							nombre4[a][j] = token2;
+							int convertir = atoi(nombre4[a][0]);
+							if (buscar == convertir){						
+								encontrado++;
+								if(encontrado ==1){
+									b =a;
+									c = j;
+									tipo ="Encontrada";
+								}
+							}
+							token2 = strtok (NULL, " ");
+							tipo = nombre4[b][1];
+							j++;
+						}
+						a++;
+					}	
+				}	
 		}
-		if (encontrado <= 0){
-			tipo = NULL;
-				}   
-	
-            	
-	}
-  	  else
-   	 {
-		printf("\nHubo un error en la apertura del archivo\n");
-		fclose(yyout2);
-	}
-	return tipo;
+  	  	else{
+			printf("\nHubo un error en la apertura del archivo\n");
+			fclose(yyout2);
+		}
+			return tipo;
    
 }
-
-char* buscarTipo(char *palabra)
-{
-
- 	char s[256];
-strcpy(s, "arreglo,int,VariableLocal");
-char* token = strtok(s, ",");
-char *arreglo[3];
-int i=0,j;
-while (token) {
-   
-	arreglo[i] = token;
-	printf("arreglo: %s\n", arreglo[i]);
-	token = strtok(NULL, ",");
-	i++;
-}
-for(j=0;j<3;j++)
-{
-fprintf(stderr,"EL: %s\n",arreglo[j]);
-}
-return NULL;
-   
-}
-
 
 void yyerror(char *s) { 
     fprintf(stderr, "%s\n", s);}
@@ -2111,10 +2378,12 @@ void yyerror(char *s) {
 int main () {
         yyin = fopen ("Codigo.txt", "r");
         yyout = fopen ("output2.csv","w+");
-	yyout2 = fopen("tablaSimbolos.csv","r");
+	yyout2 = fopen("tablaSimbolos.txt","w+");
+	yyout3= fopen("tablaSimbolos.csv","w+");
  yyparse();
-   
+   return 0;
 	fclose(yyin);
       	fclose(yyout);
-	fclose(yyout2); 
+	fclose(yyout2);
+	fclose(yyout3);  
 }

@@ -5,26 +5,22 @@
 int yylex(void);
 void yyerror(char *);
 char* buscarTipo(char *);
-char* buscar(char *);
+char* buscar(char *,FILE*);
+char* buscarVariable(char *,FILE*,char*);
 char *buscarInduccion(int);
 extern char* yytext;
 extern FILE* yyin;
 extern FILE* yyout;
 extern FILE* yyout2;
+extern FILE* yyout3;
 extern char* yycopy;
 extern int contador;
 char *palabra,*palabra2;
 %}
-
-
-
-
-
-
 %token Lit_int
 %token IGUAL
 %token Palabra_reservada
-%token <identificador>Identificador
+%token <string>Identificador
 %token Operador
 %token Opcompuesto
 %token OpControl
@@ -38,7 +34,7 @@ char *palabra,*palabra2;
 %token Lit_bool
 %token Lit_char
 %token Lit_String
-%token <tipo>TipoDato
+%token <string>TipoDato
 %token PUNTOCOM
 %token SEPARADOR
 %token AGRPAR_AB
@@ -56,10 +52,16 @@ char *palabra,*palabra2;
 %token OUTPUT
 %token RETURN
 
+%type <entero>OperacionArit
+%type <entero>atribucion
+%type <entero>num_entero
+
+
+
+
 %union {
 int entero;
-char* tipo;
-char* identificador;
+char* string;
 int enteroNeg;
 float flotante;
 }
@@ -70,48 +72,72 @@ float flotante;
 prog: 
 		prog asignacionglobal
 		|prog funcion 
+		|asignacionglobal
+		|funcion 
 		|
 		;
 
 asignacionglobal:
 		TipoDato ASIGNACION Identificador {
+							char *alcance;
 							palabra = $3;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s AsignacionGlobal,",$3,$1);} 
+							if(buscarVariable(palabra,yyout,"AG")==NULL){	
+									fprintf(yyout,"%s %s AG, \n",$3,$1);
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
 		;
 funcion:
 		TipoDato Identificador ASIGNACION stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE	{
+							char* alcance;
 							palabra = $2;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion,",$2,$1);} 
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU, \n",$2,$1);
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
 		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
+							char* alcance;
 							palabra = $2;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion,",$2,$1);} 
-							}
-
-		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB RETURN Identificador AGRLLAV_CE
-{
-							palabra = $2;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion,",$2,$1);} 
-							}
-
-		|TipoDato tamaVector Identificador AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
-							palabra = $3;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion[],",$3,$1);} 
-							}
-		|TipoDato tamaVector Identificador stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
-							palabra = $3;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s Funcion[],",$3,$1);} 
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU, \n",$2,$1);
 							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
+
+		|TipoDato Identificador ASIGNACION AGRPAR_AB  AGRPAR_CE AGRLLAV_AB RETURN Identificador AGRLLAV_CE{
+							char* alcance;
+							palabra = $2;
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU, \n",$2,$1);
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
+
+		|TipoDato tamVector Identificador AGRPAR_AB  AGRPAR_CE AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
+							char* alcance;
+							palabra = $3;
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU[], \n",$3,$1);
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
+		|TipoDato tamVector Identificador stackAsig AGRLLAV_AB bloqueComandosFunciones RETURN Identificador AGRLLAV_CE {
+							char* alcance;
+							palabra = $3;
+							alcance = "FU";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s FU[], \n",$3,$1);
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
+							}
 		;
-tamaVector: 	
-		AGRCOR_AB ENTERO AGRCOR_CE
+tamVector: 	
+		AGRCOR_AB num_entero AGRCOR_CE
 		;
 bloqueComandosFunciones: 
 		stackAsig bloqueComandosFunciones 		
@@ -134,8 +160,7 @@ stackAsig:
 
 
 if: 
-		IF stackOpLogControl				
-		|IF stackOpLogControl THEN bloqueComandosIF	
+		IF stackOpLogControl THEN bloqueComandosIF	
 		|IF stackOpLogControl THEN bloqueComandosIF ELSE bloqueComandosIF	
 		|IF stackOpLogControl THEN AGRLLAV_AB if AGRLLAV_CE	
 		|IF stackOpLogControl THEN AGRLLAV_AB if AGRLLAV_CE ELSE AGRLLAV_AB bloqueComandosIF AGRLLAV_CE
@@ -163,66 +188,139 @@ while:
 stackOpLogControl: 	
 		AGRPAR_AB stackOpLogControl AGRPAR_CE
 		|Identificador OpControl Identificador     { 	palabra = $1;
-								palabra = $3;
-								buscar(palabra2);
-								buscar(palabra);
-								}
+														palabra2 = $3;
+														buscar(palabra,yyout);
+														buscar(palabra2,yyout);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscar(palabra2,yyout);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
  
-		|Identificador OpControl valorNumerico  { 
-								palabra = $1;
-								buscar(palabra);}
-		|Identificador OpControl valorCaracter { 
-								palabra = $1;
-								buscar(palabra);}
-		|Identificador OpControl OperacionArit { 
-								palabra = $1;
-								buscar(palabra);}
+		|Identificador OpControl num_entero  { 			palabra = $1;
+														int numero;
+														numero = $3;
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+		|Identificador OpControl OperacionArit {		palabra = $1;
+														int numero;
+														numero = $3;
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
 		|AGRPAR_AB stackOpLogControl AGRPAR_CE OpLogControl stackOpLogControl
-		|Identificador OpControl Identificador OpLogControl stackOpLogControl  {
-											palabra = $1;
-											palabra = $3;
-											buscar(palabra);
-											buscar(palabra2);}
-		|Identificador OpControl valorNumerico OpLogControl stackOpLogControl {
-											palabra = $1;
-											buscar(palabra);}
-		|Identificador OpControl valorCaracter OpLogControl stackOpLogControl {
-											palabra = $1;
-											buscar(palabra);}
-		|Identificador OpControl OperacionArit OpLogControl stackOpLogControl { 
-											palabra = $1;
-											buscar(palabra);}
-		|AGRPAR_AB stackOpLogControl AGRPAR_CE bloqueComandosWhile
-		|Identificador OpControl Identificador bloqueComandosWhile 	 {
-											palabra = $1;
-											palabra = $3;
-											buscar(palabra);
-											buscar(palabra2);}
-		|Identificador OpControl valorNumerico bloqueComandosWhile { 
-										palabra = $1;
-										buscar(palabra);}
-		|Identificador OpControl valorCaracter bloqueComandosWhile {
-										palabra = $1;
-										buscar(palabra);}
-		|Identificador OpControl OperacionArit bloqueComandosWhile { 
-										palabra = $1;
-										buscar(palabra);}
-		|AGRPAR_AB stackOpLogControl AGRPAR_CE OpLogControl stackOpLogControl bloqueComandosWhile
-		|Identificador OpControl Identificador OpLogControl stackOpLogControl bloqueComandosWhile  { 
+		|Identificador OpControl Identificador OpLogControl stackOpLogControl { 	
 														palabra = $1;
-														palabra = $3;
-														buscar(palabra);
-														buscar(palabra2);}
-		|Identificador OpControl valorNumerico OpLogControl stackOpLogControl bloqueComandosWhile { 
+														palabra2 = $3;
+														buscar(palabra,yyout);
+														buscar(palabra2,yyout);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscar(palabra2,yyout);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+		|Identificador OpControl num_entero OpLogControl stackOpLogControl {		
 														palabra = $1;
-														buscar(palabra);}
-		|Identificador OpControl valorCaracter OpLogControl stackOpLogControl bloqueComandosWhile { 
+														int numero;
+														numero = $3;
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+		|Identificador OpControl OperacionArit OpLogControl stackOpLogControl {		
 														palabra = $1;
-														buscar(palabra);}
-		|Identificador OpControl OperacionArit OpLogControl stackOpLogControl bloqueComandosWhile { char *palabra;
-														palabra = $1;
-														buscar(palabra);}
-		;
+														int numero;
+														numero = $3;
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscarInduccion(numero);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+				;
 bloqueComandosWhile: 
 		AGRLLAV_AB bloqueComandosWhile AGRLLAV_CE 	
 		|atribucion					
@@ -237,56 +335,283 @@ bloqueComandosWhile:
 atribucion:
 		Identificador IGUAL stackOp	{ 
 							palabra = $1;
-							buscar(palabra);}	
-		| Identificador IGUAL valorNumerico	{ 
-							palabra = $1;
-							buscar(palabra);}
-		| Identificador IGUAL valorCaracter     { 
-							palabra = $1;
-							buscar(palabra);}	
-		| Identificador IGUAL Identificador   	{ 
+							buscar(palabra,yyout);
+							}	
+		| Identificador IGUAL num_entero	{ 
+											palabra = $1;
+											fprintf(yyout3,"%s, %d,",$1,$3);
+											char *busca1;
+											char *busca2;
+											busca1 = buscar(palabra,yyout);
+											busca2 = buscar(palabra2,yyout);
+											if(busca1!=NULL){ 
+												if(busca2!=NULL){
+													if(strcmp(busca1,busca2)==0){
+														fprintf(stderr,"\nLas variables son compatibles\n");
+														 fprintf(yyout3,"%s %d,\n",$1, $3);
+													}
+													else{
+														fprintf(stderr,"Las variables no son compatibles");
+													}
+												}	
+											}						
+											else {
+												fprintf(stderr,"variable %s no declarada",palabra);
+											}
+										}
+		| Identificador IGUAL Identificador   	{ 	
+														palabra = $1;
+														palabra2 = $3;
+														buscar(palabra,yyout);
+														buscar(palabra2,yyout);
+														char *busca1;
+														char *busca2;
+														busca1 = buscar(palabra,yyout);
+														busca2 = buscar(palabra2,yyout);
+														if(busca1!=NULL){ 
+															if(busca2!=NULL){
+																if(strcmp(busca1,busca2)==0){
+																		fprintf(stderr,"\nLas variables son compatibles\n");
+																}
+															else{
+																		fprintf(stderr,"Las variables no son compatibles");
+																} 
+															} 
+														}
+														else {
+															fprintf(stderr,"variable %s no declarada",palabra);
+														}
+													}
+		| Identificador AGRCOR_AB num_entero AGRCOR_CE IGUAL num_entero  { 
+											
 								palabra = $1;
-								palabra2 = $3;
-								buscar(palabra);
-								buscar(palabra2);}
-		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL valorNumerico  {
+								int numero;
+								numero = $6;
+								buscar(palabra,yyout);
+								char *busca1;
+								char *busca2;
+								busca1 = buscar(palabra,yyout);
+								busca2 = buscarInduccion(numero);
+								if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"\nLas variables son compatibles\n");
+									 fprintf(yyout3,"%s %d,\n",$1, $6);				}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}}
+		| Identificador AGRCOR_AB num_entero AGRCOR_CE IGUAL Identificador AGRCOR_AB num_entero AGRCOR_CE { 
+											
+								palabra = $1;
+								palabra2 = $6;
+								char *busca1;
+								char *busca2;
+								busca1 = buscar(palabra,yyout);
+								busca2 = buscar(palabra2,yyout);
+								if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"\nLas variables son compatibles\n");
+									 fprintf(yyout3,"%s %d,\n",$1, $8);}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}}
+
+		| Identificador IGUAL OperacionArit { 
 											palabra = $1;
-											buscar(palabra);}
-		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL valorCaracter { 
-											palabra = $1;
-											buscar(palabra);}
-		| Identificador AGRCOR_AB ENTERO AGRCOR_CE IGUAL Identificador AGRCOR_AB ENTERO AGRCOR_CE { 
-											palabra = $1;
-											buscar(palabra);}
+											fprintf(yyout3,"%s, %d,",$1,$3);
+											char *busca1;
+											char *busca2;
+											busca1 = buscar(palabra,yyout);
+											busca2 = buscar(palabra2,yyout);
+											if(busca1!=NULL){ 
+												if(busca2!=NULL){
+													if(strcmp(busca1,busca2)==0){
+														fprintf(stderr,"\nLas variables son compatibles\n");
+														 fprintf(yyout3,"%s %d,\n",$1, $3);
+													}
+													else{
+														fprintf(stderr,"Las variables no son compatibles");
+													}
+												}	
+											}						
+											else {
+												fprintf(stderr,"variable %s no declarada",palabra);
+											}
+										}
+
+								
+											
 		;
 asignacionLocal:
 		TipoDato ASIGNACION Identificador PUNTOCOM  {
+							char *alcance;
 							palabra = $3;
-							if(buscar(palabra)==NULL)
-								{fprintf(yyout,"%s %s AsignacionLocal,",$3,$1);} 
+							alcance = "AL";
+							if(buscarVariable(palabra,yyout,alcance)==NULL){	
+									fprintf(yyout,"%s %s AL, \n",$3,$1);
+							} 
+							else {fprintf(stderr,"La variable ya fue declarada");}
 							}
 		;
 
 stackOp: 	
 		AGRPAR_AB stackOp AGRPAR_CE
-		|OperacionArit
+		|OperacionArit		
 		|OperacionLog
 		;
 
 OperacionArit:
-		Identificador OP ENTERO 	{	palabra = $1;
-							fprintf(stderr,"%sholaaaaaaaaa",buscarInduccion($3));
-							if(strcmp(buscar(palabra),buscarInduccion($3))==0)
-								{fprintf(stderr,"holaaaaaaaaaaaaaa");} 
-							else if(strcmp(buscar(palabra),buscarInduccion($3))==0)
-								{fprintf(stderr,"hola");}
+		Identificador OP ENTERO 	{	
+							palabra = $1;
+							int numero = $3;
+							fprintf(yyout2,"%d int,",numero);
+							char *busca1;
+							char *busca2;
+							busca1 = buscar(palabra,yyout);
+							busca2 = buscarInduccion(numero);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+								
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"Las variables son compatibles");}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}
+		|Identificador OP Lit_float {	
+							palabra = $1;
+							float numero = $3;
+							fprintf(yyout2,"%f float",$3);
+							char *busca1;
+							char *busca2;
+							busca1 = buscar(palabra,yyout);
+							busca2 = buscarInduccion(numero);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"Las variables son compatibles");}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} 
+								}
+								
+							}
 							else {fprintf(stderr,"variable %s no declarada",palabra);}
 								}
 	
-		|valorNumerico OP valorNumerico		
-		|Identificador OP Identificador		
-		|Identificador OP OperacionArit		
-		|valorNumerico OP OperacionArit		
+		|num_entero '+' num_entero	{	
+							
+							int numero = $1;
+							int numero2 = $3;
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									$$ = $1 + $3;}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}	
+		|num_entero '*' num_entero	{	
+							
+							int numero = $1;
+							int numero2 = $3;
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									$$ = $1 * $3;}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}	
+		|num_entero '/' num_entero	{	
+							
+							int numero = $1;
+							int numero2 = $3;
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									$$ = $1 / $3;}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}	
+		
+		|Identificador OP Identificador	{	palabra = $1;
+								palabra2 = $3;
+								buscar(palabra,yyout);
+								buscar(palabra2,yyout);
+								palabra = $1;
+								char *busca1;
+								char *busca2;
+								busca1 = buscar(palabra,yyout);
+								busca2 = buscar(palabra2,yyout);
+								if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{fprintf(stderr,"\nLas variables son compatibles\n");}
+									else
+									{fprintf(stderr,"Las variables no son compatibles");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}}
+
+		//|Identificador OP OperacionArit		
+		|num_entero OP OperacionArit
+						{	
+							
+							int numero = $1;
+							int numero2 = $3;
+							char *busca1;
+							char *busca2;	
+							fprintf(yyout2,"%d int,",numero);
+							busca1 = buscarInduccion(numero);
+							fprintf(yyout2,"%d int,",numero2);
+							busca2 = buscarInduccion(numero2);
+							if(busca1!=NULL){ 
+								if(busca2!=NULL)
+								{
+									if(strcmp(busca1,busca2)==0)
+									{
+									$$ = $1 + $3;}
+									else
+									{fprintf(stderr,"\nLas variables no son compatibles\n");} } 
+							}
+							else {fprintf(stderr,"variable %s no declarada",palabra);}
+								}		
 		;
 OperacionLog:
 		Identificador OPLog valorNumerico 
@@ -301,18 +626,17 @@ lista:
 		|lista SEPARADOR lista
 		; 
 
+num_entero:		ENTERO  {$$ = $1;}
+
+
+
+;
 
 valorNumerico: 
 		ENTERO_NEG 
-		
-		|Lit_float 
-		;
-valorCaracter:
-		Lit_char
-		|Lit_bool
-		|Lit_String
-		;
 
+		 
+		;
 input:
 		INPUT AGRPAR_AB Lit_String AGRPAR_CE	
 		;
@@ -324,64 +648,104 @@ output:
 	
 %%
 
-char* buscar(char *palabra)
-{
-
+char* buscarVariable(char *palabra,FILE* archivo,char* alcance){
  	 int  encontrado = 0;
     	 char cadena[300],cadena2[300];
     	 char *buscar,*nombre[50],*nombre2[3][50],*tipo=NULL;
 	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
-	 if (yyout != NULL)
-    	{ 
+	 if (archivo != NULL){ 
 		buscar = palabra;
-            	rewind(yyout);
+            	rewind(archivo);
  	      	encontrado = 0;
- 		while (feof(yyout)==0)
-		{
-        		fgets(cadena,256,yyout);
+ 		while (feof(archivo)==0){
+        		fgets(cadena,256,archivo);
 			char *token = strtok(cadena,",");
-			while (token)
-                	{
+			while (token){
 				nombre[i] = token;
 				token = strtok (NULL, ",");
 				i++;
 			}
-			
 			a=0;
-			while(a<=3)
-			{
+			while(a<3){
 				j=0;
 				char *token2 = strtok(nombre[a]," ");
-				while (token2)
-                		{
-					
+				while (token2){
 					nombre2[a][j] = token2;
-					if (strcmp(buscar, nombre2[a][j])==0)
-					{
+			
+						
+					if (strcmp(buscar, nombre2[0][j])==0 && strcmp(alcance, nombre2[a][j])==0){
 						encontrado++;
 						if(encontrado ==1){
 							b =a;
 							c = j;
-							tipo ="Encontrada";
+							tipo ="Encontrada";		
 							}
+					
+					}
+					token2 = strtok (NULL, " ");
+					tipo = nombre2[b][1];
+						
+					j++;
+					
+					
+				}
+				a++;
+			}
+		}
+		if (encontrado <= 0){
+			tipo = NULL;
+		}   
+	}
+  	  else
+   	 {
+		printf("\nHubo un error en la apertura del archivo\n");
+		fclose(yyout);
+	}
+	return tipo;
+   
+}
 
+char* buscar(char *palabra,FILE* archivo){
+ 	 int  encontrado = 0;
+    	 char cadena[300],cadena2[300];
+    	 char *buscar,*nombre[50],*nombre2[3][50],*tipo=NULL;
+	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
+	 if (archivo != NULL){ 
+		buscar = palabra;
+            	rewind(archivo);
+ 	      	encontrado = 0;
+ 		while (feof(archivo)==0){
+        		fgets(cadena,256,archivo);
+			char *token = strtok(cadena,",");
+			while (token){
+				nombre[i] = token;
+				token = strtok (NULL, ",");
+				i++;
+			}
+			a=0;
+			while(a<=3){
+				j=0;
+				char *token2 = strtok(nombre[a]," ");
+				while (token2){
+					nombre2[a][j] = token2;
+					if (strcmp(buscar, nombre2[a][j])==0){
+						encontrado++;
+						if(encontrado ==1){
+							b =a;
+							c = j;
+							tipo ="Encontrada";		
+							}
 					}
 					token2 = strtok (NULL, " ");
 					tipo = nombre2[b][1];
 					j++;
-				
 				}
 				a++;
 			}
-		
-						
-			
 		}
 		if (encontrado <= 0){
 			tipo = NULL;
-				}   
-	
-            	
+		}   
 	}
   	  else
    	 {
@@ -395,96 +759,53 @@ char* buscar(char *palabra)
 char* buscarInduccion(int numero)
 {
 
- 	 int  encontrado = 0;
-    	 char cadena[300],cadena2[300];
-    	 char *nombre[50],*nombre2[3][50],*tipo=NULL;
-	int buscar;
-	 int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
-	 if (yyout2 != NULL)
-    	{ 
+ 	 	int  encontrado = 0;
+   		char cadena[300],cadena2[300];
+    	char *nombre3[50],*nombre4[3][50],*tipo=NULL;
+		int buscar;
 		buscar = numero;
-		
-            	rewind(yyout2);
+		int chek = -1,i=0,j=0,k,a=0,b=0,c=0;
+	 	if (yyout2 != NULL){ 
+			rewind(yyout2);
  	      	encontrado = 0;
- 		while (feof(yyout2)==0)
-		{
-        		fgets(cadena,256,yyout2);
-			char *token = strtok(cadena,",");
-			while (token)
-                	{
-				nombre[i] = token;
-				token = strtok (NULL, ",");
-				i++;
-			}
-			
-			a=0;
-			while(a<=3)
-			{
-				j=0;
-				char *token2 = strtok(nombre[a]," ");
-				while (token2)
-                		{
-					
-					nombre2[a][j] = token2;
-					if (strcmp(numero, nombre2[a][j])==0)
-					{
-						encontrado++;
-						if(encontrado ==1){
-							b =a;
-							c = j;
-							tipo ="Encontrada";
-							}
-
+ 				while (feof(yyout2)==0){
+	        		fgets(cadena,256,yyout2);
+					char *token = strtok(cadena,",");
+					while (token){
+						nombre3[i] = token;
+						token = strtok (NULL, ",");
+						i++;
 					}
-					token2 = strtok (NULL, " ");
-					tipo = nombre2[b][1];
-					j++;
-				
-				}
-				a++;
-			}
-		
-						
-			
+					a=0;
+					while(a<1)	{
+						j=0;
+						char *token2 = strtok(nombre3[a]," ");
+						while (token2){				
+							nombre4[a][j] = token2;
+							int convertir = atoi(nombre4[a][0]);
+							if (buscar == convertir){						
+								encontrado++;
+								if(encontrado ==1){
+									b =a;
+									c = j;
+									tipo ="Encontrada";
+								}
+							}
+							token2 = strtok (NULL, " ");
+							tipo = nombre4[b][1];
+							j++;
+						}
+						a++;
+					}	
+				}	
 		}
-		if (encontrado <= 0){
-			tipo = NULL;
-				}   
-	
-            	
-	}
-  	  else
-   	 {
-		printf("\nHubo un error en la apertura del archivo\n");
-		fclose(yyout2);
-	}
-	return tipo;
+  	  	else{
+			printf("\nHubo un error en la apertura del archivo\n");
+			fclose(yyout2);
+		}
+			return tipo;
    
 }
-
-char* buscarTipo(char *palabra)
-{
-
- 	char s[256];
-strcpy(s, "arreglo,int,VariableLocal");
-char* token = strtok(s, ",");
-char *arreglo[3];
-int i=0,j;
-while (token) {
-   
-	arreglo[i] = token;
-	printf("arreglo: %s\n", arreglo[i]);
-	token = strtok(NULL, ",");
-	i++;
-}
-for(j=0;j<3;j++)
-{
-fprintf(stderr,"EL: %s\n",arreglo[j]);
-}
-return NULL;
-   
-}
-
 
 void yyerror(char *s) { 
     fprintf(stderr, "%s\n", s);}
@@ -493,10 +814,12 @@ void yyerror(char *s) {
 int main () {
         yyin = fopen ("Codigo.txt", "r");
         yyout = fopen ("output2.csv","w+");
-	yyout2 = fopen("tablaSimbolos.csv","r");
+	yyout2 = fopen("tablaSimbolos.txt","w+");
+	yyout3= fopen("tablaSimbolos.csv","w+");
  yyparse();
-   
+   return 0;
 	fclose(yyin);
       	fclose(yyout);
-	fclose(yyout2); 
+	fclose(yyout2);
+	fclose(yyout3);  
 }

@@ -1,1 +1,4 @@
-arreglo int AsignacionGlobal,barco int AsignacionGlobal,
+c int AG, 
+a int AG, 
+b int AG, 
+main int FU, 

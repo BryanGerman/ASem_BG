@@ -87,15 +87,14 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 59 "AnalizadorS.y" /* yacc.c:1909  */
+#line 62 "AnalizadorS.y" /* yacc.c:1909  */
 
 int entero;
-char* tipo;
-char* identificador;
+char* string;
 int enteroNeg;
 float flotante;
 
-#line 99 "AnalizadorS.tab.h" /* yacc.c:1909  */
+#line 98 "AnalizadorS.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

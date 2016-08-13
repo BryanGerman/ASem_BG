@@ -5,13 +5,14 @@ void yyerror(char *);
 char *yycopy = 0 ;
 int contador=0;
 FILE *yyout2;
+FILE *yyout3;
 %}
 ID [a-z][a-z|A-Z|0-9]*
 DIGITO [0-9]
 CHAR [a-z|0-9]
 %%
 
-int|float|bool|char|string 		yylval.tipo=strdup(yytext);		return TipoDato;
+int|float|bool|char|string 		yylval.string=strdup(yytext);		return TipoDato;
 "if"										return IF;
 "then"										return THEN;
 "else"										return ELSE;
@@ -20,11 +21,11 @@ int|float|bool|char|string 		yylval.tipo=strdup(yytext);		return TipoDato;
 "printf"									return INPUT;
 "scanf"										return OUTPUT;
 "return"									return RETURN;
-{ID}					yylval.identificador=strdup(yytext);	return Identificador;
+{ID}					yylval.string=strdup(yytext);	return Identificador;
 "=" 										return IGUAL;
 ":"										return ASIGNACION;
 ","										return SEPARADOR;
-"+"|"-"|"*"|"%"|"/"								return OP;
+["\+"|"\-"|"\*"|"\%"""|"\/"]							return *yytext;
 "|"|"&"										return OPLog;	
 "<"|">"|"<="|">="|"=="|"!="		 					return OpControl;
 "&&"|"||"									return OpLogControl;
@@ -34,9 +35,9 @@ int|float|bool|char|string 		yylval.tipo=strdup(yytext);		return TipoDato;
 "}"										return AGRLLAV_CE;
 "["										return AGRCOR_AB;
 "]"										return AGRCOR_CE;
-{DIGITO}+	{yylval.entero = atoi(yytext);		fprintf(yyout2,"%d int,",yylval.entero); return ENTERO;}
--{DIGITO}+	yylval.enteroNeg = atoi(yytext);	fprintf(yyout2,"%d int,",yylval.enteroNeg);return ENTERO_NEG;
-{DIGITO}*",""0"+|{DIGITO}*","{DIGITO}+|"-"{DIGITO}*",""0"+|"-"{DIGITO}*","{DIGITO}+ yylval.flotante = atof(yytext); return Lit_float;
+{DIGITO}+	{yylval.entero = atoi(yytext);		return ENTERO;}
+-{DIGITO}+	{yylval.enteroNeg = atoi(yytext);	return ENTERO_NEG;}
+{DIGITO}*".""0"+|{DIGITO}*"."{DIGITO}+|"-"{DIGITO}*".""0"+|"-"{DIGITO}*"."{DIGITO}+ {yylval.flotante = atof(yytext); return Lit_float;}
 true|false|TRUE|FALSE 								return Lit_bool;
 "'"[a-z|A-Z|0-9]"'"  					 			return Lit_char;
 "\""[^\n]*"\"" 									return Lit_String;
